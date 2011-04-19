@@ -1,7 +1,7 @@
 %%%--- TITEL OG FORFATTER ---%%%
 \newcommand{\tit}{Implementing the Lattice Boltzmann model using CUDA and C++}
-\newcommand{\aut}{Jens Bang and Jacob Salomonsen}
-\newcommand{\subj}{Bachelor project}
+\newcommand{\aut}{Jens Bang \& Jacob Salomonsen}
+\newcommand{\subj}{Bachelor Project}
 \newcommand{\mail}{\href{mailto:jens@snej.dk}{jens@snej.dk} or \href{mailto:jiekebo@gmail.com}{jiekebo@gmail.com}}
 
 %%%--- PREAMBLE INCLUDE ---%%%
@@ -30,6 +30,15 @@ breakatwhitespace=false,				% sets if automatic breaks should only happen at whi
 escapeinside={\%*}{*)}					% if you want to add a comment within your code
 }
 
+%%%--- FANCYHDR ---%%%
+\pagestyle{fancy}
+\chead{}
+\lhead{\aut}
+\rhead{\nouppercase{\leftmark}}
+\cfoot{}
+\lfoot{\today}
+\rfoot{\thepage}
+
 %%%--- DOKUMENT STARTER HER ---%%%
 \begin{document}
 
@@ -38,33 +47,58 @@ escapeinside={\%*}{*)}					% if you want to add a comment within your code
 \HRule
 \begin{center}\huge{\bfseries{\tit}}\end{center}
 \HRule
-%\\[2.0cm]
+\\[1.0cm]
 \begin{center}
 \aut
 \\[0.5cm]
 \mail
 \\[0.5cm]
 \subj
+\\[1.5cm]
+Department of Computer Science
 \\[0.5cm]
-The Computer Science Departement at the University of Copenhagen
+University of Copenhagen
 \end{center}
 \vfill
 \begin{center}\today\end{center}
 \end{titlepage}
 
-%%%--- Indhold ---%%%
-%\tableofcontents
-%\newpage
-
 %%%--- Tekst ---%%%
 
-\section{test}
-test...
+\section{Abstract}
+
+\section{Introduction}
+
+\newpage
+\tableofcontents
+\newpage
+
+\input{theory.tex}
+\newpage
+
+\input{timing.tex}
+\newpage
+
+\input{tests.tex}
+\newpage
+
+\input{code.tex}
+\newpage
+
+\input{runningtime.tex}
+\newpage
+
+\input{conclusion.tex}
+\newpage
+
+\bibliographystyle{plain}
+\bibliography{/Tex/Library}
+\newpage
+
+\input{appendix.tex}
+
 
 %%%---BibTeX ---%%%
 %(Compile: 1 x LaTeX 1 x Bibtex 2 x LaTex)%
-%\newpage
-%\bibliographystyle{plain}
-%\bibliography{/Tex/Library}
 
 \end{document}
