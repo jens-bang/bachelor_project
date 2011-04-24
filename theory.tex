@@ -1,7 +1,16 @@
 \section{Theory}
 
+\subsection{CPU vs. GPU}
+
 \subsection{Lattice Bolzmann Model}
 
 \subsection{CUDA}
+CUDA is nVidia's way of introducing general purpose GPU programming to a wider audience. CUDA utilizes the parallel nature of the GPU, allowing a low end computer to process data in a different and some times more efficient way.
+
+The CUDA API exposes a set of tags which allows a programmer to easily specify what methods, in otherwise ordinary c-code, should be executed on the GPU. The way CUDA makes it possible is by using a preprocessor which parses the source code and makes different files for the individual architectures. Thus the normal c-code goes to whichever compiler the user chooses, and the parallel section of the code goes to a compiler specifically designed to generate PTX-code. PTX-code is essentially assembly which is not specific to any GPU. The PTX code is then translated into assembly code specifically targeted at the GPU.
+
+This effectively separates the tedium of writing assembly code directly aimed at a specific GPU-architecture.
 
 \subsubsection{Multithreading}
+
+\subsubsection{Parallel processing}
