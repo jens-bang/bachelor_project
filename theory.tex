@@ -1,16 +1,31 @@
 \section{Theory}
 
-\subsection{CPU vs. GPU}
-
 \subsection{Lattice Bolzmann Model}
 
 \subsection{CUDA}
-CUDA is nVidia's way of introducing general purpose GPU programming to a wider audience. CUDA utilizes the parallel nature of the GPU, allowing a low end computer to process data in a different and some times more efficient way.
+In the beginning, GPU's had only very limited purposes. Mostly generating real-time graphics for games, but also in a few cases for production and scientific applications. This has changed since the proliferation of the pixel shader. A pixel shader basically produces a color for every point on a screen, taking (x,y) position of the pixel, light settings of a scene, material properties and so on. Early researchers found that this ability to perform computations on each pixel could be harnessed to other uses. Since pixel shaders are completely controlled by the programmer the possibility of simply giving a GPU data as input, instead of a scene to render, was within reach. This would mark the beginning of the general purpose GPU.
+
+The general purpose GPU did however lack a platform for developers to build upon, since learning to program pixel shaders required previous knowledge about either openGL or DirectX. Also even when knowing these frameworks, the model would lack the perspective of general purpose computing and instead be focused on generating graphics, where the general purpose computing aspect would be achieved by "cheating" the GPU into treating data as if it was a scene to be rendered.
+
+Enter CUDA. CUDA is nVidia's way of introducing general purpose GPU programming to a wider audience. CUDA utilizes the parallel nature of the GPU, allowing a low end computer to process data in a different and some times more efficient way.
 
 The CUDA API exposes a set of tags which allows a programmer to easily specify what methods, in otherwise ordinary c-code, should be executed on the GPU. The way CUDA makes it possible is by using a preprocessor which parses the source code and makes different files for the individual architectures. Thus the normal c-code goes to whichever compiler the user chooses, and the parallel section of the code goes to a compiler specifically designed to generate PTX-code. PTX-code is essentially assembly which is not specific to any GPU. The PTX code is then translated into assembly code specifically targeted at the GPU.
 
-This effectively separates the tedium of writing assembly code directly aimed at a specific GPU-architecture.
+This effectively separates the tedium of writing assembly code directly aimed at a specific GPU-architecture, or writing pixel shaders via graphics APIs.
+
+\begin{flushright}
+\textit{Jacob Salomonsen}
+\end{flushright}
 
 \subsubsection{Multithreading}
 
 \subsubsection{Parallel processing}
+
+\subsection{CPU vs. GPU}
+  Different goals produce different designs !   GPU assumes work load is highly parallel !   CPU must be good at everything, parallel or not
+!   CPU: minimize latency experienced by 1 thread !   big on-chip caches !   sophisticated control logic
+!   GPU: maximize throughput of all threads
+!  
+!   !  
+threads in flight limited by resources => lots of resources (registers, bandwidth, etc.)
+multithreading can hide latency => skip the big caches share control logic across many threads
