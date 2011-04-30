@@ -2,10 +2,14 @@
 
 \subsection{Lattice Bolzmann Model}
 
+\subsection{Multithreading}
+
+\subsection{Parallel Processing}
+
 \subsection{CUDA}
 In the beginning, GPU's had only very limited purposes. Mostly generating real-time graphics for games, but also in a few cases for production and scientific applications. This has changed since the proliferation of the pixel shader. A pixel shader basically produces a color for every point on a screen, taking (x,y) position of the pixel, light settings of a scene, material properties and so on. Early researchers found that this ability to perform computations on each pixel could be harnessed to other uses. Since pixel shaders are completely controlled by the programmer the possibility of simply giving a GPU data as input, instead of a scene to render, was within reach. This would mark the beginning of the general purpose GPU.
 
-The general purpose GPU did however lack a platform for developers to build upon, since learning to program pixel shaders required previous knowledge about either openGL or DirectX. Also even when knowing these frameworks, the model would lack the perspective of general purpose computing and instead be focused on generating graphics, where the general purpose computing aspect would be achieved by "cheating" the GPU into treating data as if it was a scene to be rendered.
+The general purpose GPU did however lack a platform for developers to build upon, since learning to program pixel shaders required previous knowledge about either openGL or DirectX. Also even when knowing these frameworks, the model would lack the perspective of general purpose computing and instead be focused on generating graphics, where the general purpose computing aspect would be achieved by "cheating" the GPU into treating data as if it was a scene to be rasterized.
 
 Enter CUDA. CUDA is nVidia's way of introducing general purpose GPU programming to a wider audience. CUDA utilizes the parallel nature of the GPU, allowing a low end computer to process data in a different and some times more efficient way.
 
@@ -17,9 +21,19 @@ This effectively separates the tedium of writing assembly code directly aimed at
 \textit{Jacob Salomonsen}
 \end{flushright}
 
-\subsubsection{Multithreading}
+\subsubsection{CUDA Programming Model}
+The CUDA programming model efficiently supports the steps needed to be taken in order to make a process parallel. The model is arranged so a decomposition of the problem area is naturally ingrained in the programming procedure, by having the programmer split the problem into parts. Since the GPU is capable of launching many threads it is necessary to have control of what thread is launching where. Therefore nVidia has structured execution of code in a way that both allows an easy intuition of the GPU-architecture as well as supporting the steps in making a process parallel.
 
-\subsubsection{Parallel processing}
+The code to be executed on the GPU, called the kernel henceforth, launches a grid which contains blocks of threads. A kernel can only launch one grid at a time. Blocks can be two-dimensionally arranged and the threads within the blocks can be arranged three-dimensionally. Threads within blocks can cooperate via shared memory, but cannot cooperate with threads from another block. It is therefore pivotal for the performance of a parallel process that a domain analysis has been made and the memory intensive parts of the problem are contained within a block.
+
+Blocks do not only have the role of sharing memory among treads. It also serves as a synchronization point for the threads within it. A special command within CUDA will issue that all threads within a block must have completed before further execution is permitted.
+
+To support this structure, CUDA provides built-in facilities for indexing blocks and threads. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads.
+
+
+
+
+
 
 \subsection{CPU vs. GPU}
   Different goals produce different designs !   GPU assumes work load is highly parallel !   CPU must be good at everything, parallel or not
