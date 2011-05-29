@@ -5,3 +5,21 @@
 \subsection{Problem domain}
 
 \subsection{Code Analysis}
+The initial code analysis was done to get an overview of the code at hand.
+
+\subsection{Design choices}
+In this section I will describe the choices made during the implementation of the Lattice Boltzmann Model. The implementation takes origin in the Matlab code included in \hpref{listing}{lbmmatlab}.
+
+To be able to perform a proper comparison between the CPU- and GPU-version of the model, a NumPy version has been created also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the (TODO: insert library name here).
+
+\subsubsection{PyCUDA}
+PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Python is a scripting language, which means it is not compiled but interpreted. This leverages the programming process, and allows for some of the advantages of an interpreted language. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will gain more reliability by keeping the execution on the same platform.
+
+PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. The \texttt{SourceModule} utilizes a just-in-time compilation process. (TODO: check fact!) This means that the kernel is only compiled at the moment it is needed.
+
+As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. The copying is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}. These commands allocate global memory on the GPU by default. (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory)
+
+\subsubsection{NumPy}
+
+\subsubsection{Data structure}
+The D2Q9 LBM maintains velocities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $x \cdot y$ then to be able to contain this, the data structure must be able to contain $9 \cdot x \cdot y$.
