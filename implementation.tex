@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}
-Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures.
+Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures. To perform an 
 
 \begin{table}[htb]
 	\centering
@@ -11,25 +11,25 @@ Since this was a blackbox-implementation scheme, it can be assumed that the prog
 		Variable & Type & Purpose \\
 		\midrule
 		F 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
-		FEQ 			& $nx\times ny\times 9$ (double)	& \\
+		FEQ 			& $nx\times ny\times 9$ (double)	& equilibrium state of the nine matrices\\
 		BOUNCEBACK		& $nx\times ny\times 9$ (double) & densities bouncing back\\
-		BOUND 			& $nx\times ny$ (binary) 		& \\
+		BOUND 			& $nx\times ny$ (binary) 		& boundary defined by 1's\\
 		ON				& $8\times 1$ (integer) 			& linear index of directional matrices\\
 		CI				& $b\times 1$ (integer)			& linear index of boundary nodes\\
-		TO\_ REFLECT 	& $b\times 8$ (integer) 			& \\
-		REFLECTED 		& $b\times 8$ (integer) 			& \\
-		DENSITY			& & \\
-		UX				& & \\
-		UY				& & \\
-		U\_ SQU			& & \\
-		U\_ C2			& & \\
-		U\_ C4			& & \\
-		U\_ C6			& & \\
-		U\_ C8			& & \\
+		TO\_REFLECT 	& $b\times 8$ (integer) 			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
+		REFLECTED 		& $b\times 8$ (integer) 			& linear index of nodes to recover from BOUNCEBACK over all nine matrices \\
+		DENSITY			& $nx\times ny$ (double) 		& summation of all nine matrices\\
+		UX				& $nx\times ny$ (double) 		& summation of all densities with non zero x-component\\
+		UY				& $nx\times ny$ (double) 		& summation of all densities with non zero y-component \\
+		U\_SQU			& $nx\times ny$ (double) 		& sum of UX squared and UY squared\\
+		U\_C2			& $nx\times ny$ (double) 		& sum of UX and UY\\
+		U\_C4			& $nx\times ny$ (double) 		& negative sum of UX and UY\\
+		U\_C6			& $nx\times ny$ (double) 		& negative of U\_C2\\
+		U\_C8			& $nx\times ny$ (double) 		& negative of U\_C4\\
 		\bottomrule
 	\end{tabular}
 	\label{matlabvars}
-	\caption{Matlab variables}
+	\caption{Variables and their usage in the Matlab version of D2Q9 LBM}
 \end{table}
 
 
