@@ -1,9 +1,40 @@
 \section{Implementation (\textit{Jacob Salomonsen})}
 
-\subsection{Matlab}
+
+\subsection{Matlab implementation analysis}
+Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures.
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{llp{6cm}}
+		\toprule
+		Variable & Type & Purpose \\
+		\midrule
+		F 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
+		FEQ 			& $nx\times ny\times 9$ (double)	& \\
+		BOUNCEBACK		& $nx\times ny\times 9$ (double) & densities bouncing back\\
+		BOUND 			& $nx\times ny$ (binary) 		& \\
+		ON				& $8\times 1$ (integer) 			& linear index of directional matrices\\
+		CI				& $b\times 1$ (integer)			& linear index of boundary nodes\\
+		TO\_ REFLECT 	& $b\times 8$ (integer) 			& \\
+		REFLECTED 		& $b\times 8$ (integer) 			& \\
+		DENSITY			& & \\
+		UX				& & \\
+		UY				& & \\
+		U\_ SQU			& & \\
+		U\_ C2			& & \\
+		U\_ C4			& & \\
+		U\_ C6			& & \\
+		U\_ C8			& & \\
+		\bottomrule
+	\end{tabular}
+	\label{matlabvars}
+	\caption{Matlab variables}
+\end{table}
+
 
 \subsection{NumPy}
-NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor. This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
+NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
 
 At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which upon creating cannot change in size. If an attempt to change the size of it is made it is simply overwritten. To allocate an array fitting with the data layout discussed in an earlier section (TODO: perhaps reference to the section here?), the following command is used:
 
@@ -71,10 +102,7 @@ To further specify what kind of float the command from above can be augmented wi
 This allocates 32-bit floats which is especially suited for CUDA.
 
 
-
-\subsection{Code Analysis}
-Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures.
-
+\newpage
 \subsection{Design choices}
 In this section the choices made during the implementation of the D2Q9 LBM will described. The implementation takes origin in the Matlab code included in \hpref{listing}{lbmmatlab}.
 
@@ -84,9 +112,10 @@ To be able to perform a proper comparison between the CPU-- and GPU--version of 
 The D2Q9 LBM maintains velocities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $x \cdot y$ then to be able to contain this, the data structure must be able to contain $9 \cdot x \cdot y$.
 
 \subsubsection{NumPy}
-Since Python (and NumPy) is reminiscent of Matlab, there are no great differences between the Matlab-- and NumPy--version. The largest difference lies in the above method for wrapping an array and the way the boundary is imposed on the directional matrices. This is done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab-- and NumPy--version. The largest difference lies in the above method for wrapping an array and the way the boundary is imposed on the directional matrices. This is done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
 \subsubsection{PyCUDA}
+
 
 
 
