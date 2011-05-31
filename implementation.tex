@@ -1,16 +1,52 @@
-\section{Implementation}
+\section{Implementation (\textit{Jacob Salomonsen})}
 
 \subsection{Assumptions}
 
 \subsection{Problem domain}
 
 \subsection{Code Analysis}
-The initial code analysis was done to get an overview of the code at hand.
+Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures. 
 
 \subsection{Design choices}
 In this section I will describe the choices made during the implementation of the Lattice Boltzmann Model. The implementation takes origin in the Matlab code included in \hpref{listing}{lbmmatlab}.
 
 To be able to perform a proper comparison between the CPU- and GPU-version of the model, a NumPy version has been created also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the (TODO: insert library name here).
+
+\subsubsection{Data layout}
+The D2Q9 LBM maintains velocities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $x \cdot y$ then to be able to contain this, the data structure must be able to contain $9 \cdot x \cdot y$.
+
+\subsubsection{NumPy}
+NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor. This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
+
+At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which upon creating cannot change in size. If an attempt to change the size of it is made it is simply overwritten. To allocate an array fitting with the data layout discussed in an earlier section (TODO: perhaps reference to the section here?), the following command is used:
+
+\begin{verbatim}
+>>> F = numpy.zeros((9,nx,ny), dtype=float)
+\end{verbatim}
+
+This allocates a three dimensional array consisting of zeros. Here the first dimension contains 9 spaces, and the other two dimensions contain the given width and height of the simulated field. The \texttt{dtype} parameter decides what data-type is to be used, in this case a float of no specification. 
+
+As an alternative an array can be allocated with ones instead of zeros, which is useful for generating the scenery in the simulation field. This is simply done by the command
+
+\begin{verbatim}
+>>> BOUNDi = numpy.ones(BOUND.shape, dtype=float)
+\end{verbatim}
+
+Arrays have certain attributes attached to then which can be accessed by the dot operator. In the command above it can be seen that one of these attributes is accessed in the context of creating a new array, to make that array the same shape as another array. Here the meaning of the command is to create an array consisting of ones called \texttt{BOUNDi} in the shape of \texttt{BOUND}.
+
+The type of operation which is mostly used in the LBM is the slicing operation. In the propagation kernel the data of the arrays need to "propagate" in specific directions. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This of course requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix and shifting the temporary matrix. The mechanics of this procedure is illustrated like this
+
+\begin{tabular}{|c|c|c|}
+\hline
+1 & 2 & 3 \\
+\hline
+4 & 5 & 6 \\
+\hline
+7 & 8 & 9 \\
+\hline
+\end{tabular}
+
+When dealing with data in an euclidean space it is important to remember that the array class in NumPy is column major. Therefore methods for example used for plotting data will expect the first dimension of a two-dimensional array to correspond with the y-axis of a normal plot. 
 
 \subsubsection{PyCUDA}
 PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Python is a scripting language, which means it is not compiled but interpreted. This leverages the programming process, and allows for some of the advantages of an interpreted language. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will gain more reliability by keeping the execution on the same platform.
@@ -19,7 +55,14 @@ PyCUDA allows a programmer trained in the usage of CUDA C, to easily start progr
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. The copying is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}. These commands allocate global memory on the GPU by default. (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory)
 
-\subsubsection{NumPy}
+To further specify what kind of float the command from above can be augmented with the following statement
 
-\subsubsection{Data structure}
-The D2Q9 LBM maintains velocities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $x \cdot y$ then to be able to contain this, the data structure must be able to contain $9 \cdot x \cdot y$.
+\begin{verbatim}
+>>> F = numpy.zeros((9,nx,ny), dtype=float).astype(numpy.float32)
+\end{verbatim}
+
+This allocates 32-bit floats which is especially suited for CUDA.
+
+
+
+
