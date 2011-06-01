@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}
-Since this was a blackbox-implementation scheme, it can be assumed that the programmer has no knowledge about the theory behind the model. The initial code analysis was done and gave an overview of the variables and procedures. To perform an 
+The NumPy and CUDA implementations take origin in a Matlab script. Since the project relies on a blackbox implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
 
 \begin{table}[htb]
 	\centering
@@ -28,10 +28,35 @@ Since this was a blackbox-implementation scheme, it can be assumed that the prog
 		U\_C8			& $nx\times ny$ (double) 		& negative of U\_C4\\
 		\bottomrule
 	\end{tabular}
+	\caption{Variables and their purpose in the Matlab version of D2Q9 LBM}
 	\label{matlabvars}
-	\caption{Variables and their usage in the Matlab version of D2Q9 LBM}
 \end{table}
 
+The main and most important variable in the script is the F-variable. From \hpref{table}{matlabvars} we see that F is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. Hence according to the theory (TODO: reference to theory section) this variable stores eight density directions and one stationary state. 
+
+The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounceback}.
+
+\subparagraph{Propagation} Propagation is where nodes densities are spread outward to affect neighbouring nodes. In the Matlab code this happens in line 44-54 in \hpref{listing}{lbmmatlab}. Lets examine line 45 and see how this is done
+
+\begin{verbatim}
+>> F(:,:,1)=F([nx 1:nx-1],:,1);
+\end{verbatim}
+
+On the right hand side a new matrix is created from F, by simply re-indexing the original array. Basically if the simulated field $nx=10$ wide the statement \texttt{[nx 1:nx-1]} creates the following
+
+\begin{verbatim}
+10     1     2     3     4     5     6     7     8     9
+\end{verbatim}
+
+essentially propagating the data in an eastward direction, by wrapping the end of the matrix around and shifting forward the rest, corresponding to vector c1 in (TODO: reference to neat figure here). The rest of the expression says to go along all elements of the second axis, and only operate on matrix one out of nine. One thing to keep in mind when analysing Matlab code is that it uses one-based indexing, as opposed to most programming languages (e.g. Python) which uses zero-based indexing.
+
+The rest of the propagation part of the script is simply an extension of the above, with only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question. (TODO: maybe reference theory for clarification of what directions there are?)
+
+\subparagraph*{Density}
+
+\subparagraph*{Equilibrium}
+
+\subparagraph*{Bounceback}
 
 \subsection{NumPy}
 NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
