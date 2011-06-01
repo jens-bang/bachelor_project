@@ -12,12 +12,13 @@ The NumPy and CUDA implementations take origin in a Matlab script. Since the pro
 		\midrule
 		F 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
 		FEQ 			& $nx\times ny\times 9$ (double)	& equilibrium state of the nine matrices\\
-		BOUNCEBACK		& $nx\times ny\times 9$ (double) & densities bouncing back\\
-		BOUND 			& $nx\times ny$ (binary) 		& boundary defined by 1's\\
-		ON				& $8\times 1$ (integer) 			& linear index of directional matrices\\
-		CI				& $b\times 1$ (integer)			& linear index of boundary nodes\\
-		TO\_REFLECT 	& $b\times 8$ (integer) 			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
+
+		BOUND 			& $nx\times ny$ (binary) 		& boundary defined by 1's ($b$)\\
+		CI				& $8\times 1$ (integer) 			& linear index of directional matrices\\
+		ON				& $b\times 1$ (integer)			& linear index of obstacle nodes\\
+		TO\_REFLECT 		& $b\times 8$ (integer)			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
 		REFLECTED 		& $b\times 8$ (integer) 			& linear index of nodes to recover from BOUNCEBACK over all nine matrices \\
+		BOUNCEBACK		& $b\times 8$ (integer) 			& densities bouncing back\\
 		DENSITY			& $nx\times ny$ (double) 		& summation of all nine matrices\\
 		UX				& $nx\times ny$ (double) 		& summation of all densities with non zero x-component\\
 		UY				& $nx\times ny$ (double) 		& summation of all densities with non zero y-component \\
@@ -36,7 +37,8 @@ The main and most important variable in the script is the F-variable. From \hpre
 
 The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounceback}.
 
-\subparagraph{Propagation} Propagation is where nodes densities are spread outward to affect neighbouring nodes. In the Matlab code this happens in line 44-54 in \hpref{listing}{lbmmatlab}. Lets examine line 45 and see how this is done
+\subparagraph{Propagation} 
+Propagation is where nodes densities are spread outward to affect neighbouring nodes. In the Matlab code this happens in line 44-55 in \hpref{listing}{lbmmatlab}. Lets examine line 45 and see how this is done
 
 \begin{verbatim}
 >> F(:,:,1)=F([nx 1:nx-1],:,1);
@@ -53,10 +55,35 @@ essentially propagating the data in an eastward direction, by wrapping the end o
 The rest of the propagation part of the script is simply an extension of the above, with only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question. (TODO: maybe reference theory for clarification of what directions there are?)
 
 \subparagraph*{Density}
+The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab} of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
+
+On line 21 of \hpref{listing}{lbmmatlab} the variable CI is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce back). This means that if the simulated field is $10\times10$ the indices would be
+
+\begin{verbatim}
+0   100   200   300   400   500   600   700
+\end{verbatim}
+
+which can be used together with the variable ON, which contains the linear index for obstacle nodes, to calculate the linear position of obstacle nodes in all of the 1--8 matrices (TODO: think up a way to illustrate this with some math...).
+
+The indices of obstacles in matrix 1--8 is saved in the variable TO\_REFLECT and then used to access all positions within the F-variable where there exists an obstacle, bearing in mind that this is the same position per obstacle for each 1--8 matrix, just with different linear indices.
+
+The density is easily calculated by use of the sum command, which sums the matrices up along the third axis, i.e. the density matrices 1--9 are reduced to one.
+
+The UX and UY variables are created summing only the density matrices having either non-zero x- or y-component. The meaning of x- and y-component is illustrated in (TODO:insert snazzy figure illustrating the directional vectors summed across axes).
 
 \subparagraph*{Equilibrium}
+The equilibrium part that runs from 63--88 increases the inlet pressure as to create a constant flow in the simulation. This part also uses the result from the density part to calculate some constants used in calculation of the equilibrium. The equilibrium is calculated for each density matrix 1--9, the first one being the stationary state as seen below.
+
+\begin{verbatim}
+FEQ(:,:,9)=t1*DENSITY.*(1-U_SQU/(2*c_squ));
+\end{verbatim}
+
+Here the special '.' operator is used, meaning that it is an element-wise operation, not on the full matrix.
+
+Subsequently the FEQ-variable is added to the F-variable
 
 \subparagraph*{Bounceback}
+The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The REFLECTED variable is just like TO\_REFLECT, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is the opposite westward direction as seen on (TODO: snazzy figure...).
 
 \subsection{NumPy}
 NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
