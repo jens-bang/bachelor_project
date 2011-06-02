@@ -145,7 +145,7 @@ PyCUDA is an extension for the Python language, that allows for full access to f
 
 PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. The \texttt{SourceModule} utilizes a just-in-time compilation process. (TODO: check fact!) This means that the kernel is only compiled at the moment it is needed.
 
-As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. The copying is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}. These commands allocate global memory on the GPU by default. (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory)
+As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}.
 
 When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
 
@@ -154,6 +154,40 @@ When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, i
 \end{verbatim}
 
 The \texttt{astype} ensures data is allocated as 32-bit floats, which are especially suited for CUDA.
+
+PyCUDA allows for allocation to different memory types on the GPU as seen in \hpref{figure}{cudamem}. We have already covered global memory. What remains is one of the CPU read/write GPU read memories, the texture-memory. The texture-memory is a special kind of memory which exhibits a spatial characteristic. This means that data most suited for this memory is either two or three dimensional. This memory is relatively fast compared with the global memory, but the drawback is it is read only. The allocation and usage is reminiscent of the CUDA C method. As with CUDA C a texture is defined in the kernel, which is contained withing PyCUDA's \texttt{SourceModule}
+
+\begin{verbatim}
+texture<float, 2> tex;
+\end{verbatim}
+
+Now as with CUDA C the texture reference is tied to the texture's 'name' in the kernel
+
+\begin{verbatim}
+texture_func = mod.get_function("kernel_handle")
+texref = mod.get_texref("tex")
+\end{verbatim}
+
+Now the that the reference has been set up, it is possible to load data into the texture. Loading a matrix into the texture is done so
+
+\begin{verbatim}
+>>> pycuda.driver.matrix_to_texref(a, texref, order="C")
+\end{verbatim}
+
+Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \textit{tex2D(x,y)} is going to fetch \textit{matrix(y,x)}, otherwise if 'F' \textit{tex2D(x,y)} is going to fetch \textit{matrix(x,y)} (TODO: cite the pycuda manual).
+
+A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the numpy.ndarray, but performs its computations on the GPU instead of one CPU-core.
+
+\begin{verbatim}
+a = gpuarray.empty_like(x)
+\end{verbatim}
+
+\begin{verbatim}
+a = gpuarray.to_gpu(numpy.array(5, dtype=dtype))
+\end{verbatim}
+
+A GPUArray can also bind to a texture reference.
+
 
 
 
@@ -170,10 +204,4 @@ The D2Q9 LBM maintains velocities for eight directional states plus one stationa
 Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab-- and NumPy--version. The largest difference lies in the above method for wrapping an array and the way the boundary is imposed on the directional matrices. This is done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
 \subsubsection{PyCUDA}
-
-
-
-
-
-
 
