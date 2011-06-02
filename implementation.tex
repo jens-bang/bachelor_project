@@ -44,7 +44,7 @@ Propagation is where nodes densities are spread outward to affect neighbouring n
 >> F(:,:,1)=F([nx 1:nx-1],:,1);
 \end{verbatim}
 
-On the right hand side a new matrix is created from F, by simply re-indexing the original array. Basically if the simulated field $nx=10$ wide the statement \texttt{[nx 1:nx-1]} creates the following
+On the right hand side a new matrix is created from F, by simply re-indexing the original array. Basically if the simulated field is $nx=10$ wide the statement \texttt{[nx 1:nx-1]} creates the following
 
 \begin{verbatim}
 10     1     2     3     4     5     6     7     8     9
@@ -84,6 +84,8 @@ Subsequently the FEQ-variable is added to the F-variable
 
 \subparagraph*{Bounceback}
 The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The REFLECTED variable is just like TO\_REFLECT, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is the opposite westward direction as seen on (TODO: snazzy figure...).
+
+
 
 \subsection{NumPy}
 NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
@@ -139,19 +141,20 @@ To expand a matrix with a new dimension, which is needed for the boundary calcul
 
 
 \subsection{PyCUDA}
-PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Python is a scripting language, which means it is not compiled but interpreted. This leverages the programming process, and allows for some of the advantages of an interpreted language. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will gain more reliability by keeping the execution on the same platform.
+PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will also gain more reliability by keeping the execution on the same platform.
 
 PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. The \texttt{SourceModule} utilizes a just-in-time compilation process. (TODO: check fact!) This means that the kernel is only compiled at the moment it is needed.
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. The copying is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}. These commands allocate global memory on the GPU by default. (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory)
 
-To further specify what kind of float the command from above can be augmented with the following statement
+When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
 
 \begin{verbatim}
 >>> F = numpy.zeros((9,nx,ny), dtype=float).astype(numpy.float32)
 \end{verbatim}
 
-This allocates 32-bit floats which is especially suited for CUDA.
+The \texttt{astype} ensures data is allocated as 32-bit floats, which are especially suited for CUDA.
+
 
 
 \newpage
