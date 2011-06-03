@@ -174,19 +174,25 @@ Now the that the reference has been set up, it is possible to load data into the
 >>> pycuda.driver.matrix_to_texref(a, texref, order="C")
 \end{verbatim}
 
-Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \textit{tex2D(x,y)} is going to fetch \textit{matrix(y,x)}, otherwise if 'F' \textit{tex2D(x,y)} is going to fetch \textit{matrix(x,y)} (TODO: cite the pycuda manual).
+Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} (TODO: cite the pycuda manual).
 
-A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the numpy.ndarray, but performs its computations on the GPU instead of one CPU-core.
+A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray with an \textit{ndarray} as template the following command can be used.
 
 \begin{verbatim}
 a = gpuarray.empty_like(x)
 \end{verbatim}
 
+To 
+
 \begin{verbatim}
-a = gpuarray.to_gpu(numpy.array(5, dtype=dtype))
+a = gpuarray.to_gpu(numpy.array(5, dtype=numpy.float32))
 \end{verbatim}
 
+Hence it the memory allocation and copying to memory is mostly abstracted away.
+
 A GPUArray can also bind to a texture reference.
+
+The GPUArray can perform basic linear algebra. 
 
 
 
@@ -204,4 +210,56 @@ The D2Q9 LBM maintains velocities for eight directional states plus one stationa
 Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab-- and NumPy--version. The largest difference lies in the above method for wrapping an array and the way the boundary is imposed on the directional matrices. This is done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
 \subsubsection{PyCUDA}
+The implementation of the PyCUDA version takes origin in the previous analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm.
+
+The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to become parallel. The problem is very easily decomposed to much smaller sub problems. The object from then on was to think out a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
+
+The main challenge in arranging data is that it is important each thread is treated as a single non-dependent unit, which on execution knows where it is and what data it is supposed to operate on. To help, CUDA supplies some indexing constants for use in the kernel as stipulated in the CUDA section (TODO: reference).
+
+Since CUDA C does not have a construct like NumPy's \textit{ndarray}, it is necessary to linearise data access. Normally this would simply consist of assigning a maximum size of the array and let access to an element higher than that width wrap around and increase in the second dimension (TODO: illustrate this fact). This however is complicated by the fact that we do not run through the array accessing each element in sequence. Instead we access the array from certain points within the CUDA block structure. This meaning each thread has it's own specific data-point in the array. Thus we need to linearise the array with the tools given to us in the CUDA programming model.
+
+This is done by clever use of the block index, block dimension and thread index. Imagine we have a linear array we need to spread out over a series of CUDA blocks. The kernel has been launched with a pre-calculated block size, and the amount of blocks have been calculated to fit with the data in question. If we take a practical example and say our blocks are one-dimensional, and they can as a maximum contain 10 threads. Your array contains 35 elements, and we want to be able to index this within the CUDA-kernel. The linear index mapping from thread location in the CUDA kernel to an array index is then calculated like so
+
+\begin{verbatim}
+idx = threadIdx.x + blockIdx.x * blockDim.x;
+\end{verbatim}
+
+in figure (TODO: make a figure like in notes), it can be seen how this works for two thread locations within the CUDA-kernel. The block dimension is used together with the block index, to determine what block the thread is within, then it is only to add the thread index within the found block and we have the linear index. This technique is used throughout the code in implementing the GPU-version of the D2Q9 LBM, only extended to either two or three dimensions.
+
+Initially the project focused on implementing the D3Q19 LBM so some work went into arranging data to fit this model. As blocs are limited as to how many threads can run within them, the main issue which must be resolved when making an algorithm parallel arises. For the D3Q19 case the main issue was to fit a three dimensional problem into a two dimensional space. A block can contain three dimensions, but this will minimize the amount of threads available to run in each dimension. Also, the third dimension will still be limited to the maximum allowable threads per block(TODO: insert a figure illustrating this limitation). The solution is to linearise the third dimension into the grid layout, where a block can have two dimensions corresponding to the simulated field's size, and then be repeated as a series of blocks in the grid corresponding to the third dimension.
+
+(TODO: insert figure of three dimensional layout)
+
+This however raises another problem. What if the simulated field is larger than the allowable size of the block? When the simulated field crosses the maximum block size, four blocks is needed to support this increase (assuming the simulated field is always quadratic). Since the grid can only be two dimensional there is a difficult problem in linearising the blocks from three to two dimensions.
+
+The two dimensional case D2Q9 is however much simpler. Here it is just a matter of extending the one dimensional case illustrated above
+
+\begin{verbatim}
+int x     = threadIdx.x + blockIdx.x * blockDim.x;
+int y     = threadIdx.y + blockIdx.y * blockDim.y;
+int nx    = blockDim.x * gridDim.x;
+int cur = x + y * nx;
+\end{verbatim}
+
+This successfully emulates a two dimensional array by using the block and thread index in the y-direction also. The trick is that when the y-coordinate increases the index has to follow the principle of the linearisation. Here when a y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (TODO: illustrate). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index. But we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by nx, which is the horizontal dimension of the simulated field (being a block's size times the amount of blocks) for every y-coordinate.
+
+We are still missing one thing before we are ready with our indexing-scheme. We need to access nine separate matrices also by linearising their starting position, much like in the original Matlab-script's variable \texttt{CI}. As described in the data-structure section, index 0 has been chosen to contain the stationary matrix instead of 9 as in the Matlab-script. In this way all directional matrices can keep numbering consistently with the Matlab-script since Matlab uses one-based indexing and Python uses zero-based indexing.
+
+To get the starting position of the other matrices, it is simply a matter of finding the size of the matrix, and adding to the index already found above
+
+\begin{verbatim}
+int nx    = blockDim.x * gridDim.x;
+int ny    = blockDim.y * gridDim.y;
+int size  = nx * ny;
+\end{verbatim}
+
+
+
+Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in the section (TODO: section reference) will be used for all kernels.
+
+
+
+
+no convenience like slicing... linearization
+
 
