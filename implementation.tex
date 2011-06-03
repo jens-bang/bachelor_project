@@ -106,18 +106,6 @@ As an alternative an array can be allocated with ones instead of zeros, which is
 
 Arrays have certain attributes attached to then which can be accessed by the dot operator. In the command above it can be seen that one of these attributes is accessed in the context of creating a new array, to make that array the same shape as another array. Here the meaning of the command is to create an array consisting of ones called \texttt{BOUNDi} in the shape of \texttt{BOUND}.
 
-The type of operation which is mostly used in the LBM is the slicing operation. In the propagation kernel the data of the arrays need to "propagate" in specific directions. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This of course requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix and shifting the temporary matrix. The mechanics of this procedure is illustrated like this
-
-\begin{tabular}{|c|c|c|}
-\hline
-1 & 2 & 3 \\
-\hline
-4 & 5 & 6 \\
-\hline
-7 & 8 & 9 \\
-\hline
-\end{tabular}
-
 When dealing with data in an euclidean space it is important to remember that the array class in NumPy is column major. Therefore methods for example used for plotting data will expect the first dimension of a two-dimensional array to correspond with the y-axis of a normal plot. 
 
 NumPy supports summation operations so as to be able to reduce the nine directional matrices. This is done by the use of the command
@@ -201,13 +189,39 @@ The GPUArray can perform basic linear algebra.
 \subsection{Design choices}
 In this section the choices made during the implementation of the D2Q9 LBM will described. The implementation takes origin in the Matlab code included in \hpref{listing}{lbmmatlab}.
 
-To be able to perform a proper comparison between the CPU-- and GPU--version of the model, a NumPy version has been created also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the (TODO: insert library name here).
+To be able to perform a proper comparison between the CPU-- and GPU--version of the model, a NumPy version has been created also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the \texttt{timeit} class.
+
 
 \subsubsection{Data layout}
-The D2Q9 LBM maintains velocities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $x \cdot y$ then to be able to contain this, the data structure must be able to contain $9 \cdot x \cdot y$.
+The data layout is well founded by the analysis of the Matlab script to consist of a two dimensional matrix, repeated nine times for the D2Q9 LBM. The D2Q9 LBM maintains densities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $nx \cdot ny$ then to be able to contain this, the data structure must be able to contain $9 \cdot nx \cdot ny$. For both the NumPy and PyCUDA version the matrix index has been chosen as the first dimension instead of the third as it is in the Matlab script. This is because it is easier to handle upon linearisation and will fit the usage of some commands like \texttt{add.reduce}.
+
 
 \subsubsection{NumPy}
-Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab-- and NumPy--version. The largest difference lies in the above method for wrapping an array and the way the boundary is imposed on the directional matrices. This is done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices.
+
+Wrapping is done in lines (TODO:refer to listing) and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This of course requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix and shifting the temporary matrix.
+
+\begin{verbatim}
+F[1,:,0]     = T[1,:,-1]
+F[1,:,1:]    = T[1,:,:-1]
+\end{verbatim}
+
+The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated like this
+
+\begin{tabular}{|c|c|c|}
+\hline
+1 & 2 & 3 \\
+\hline
+4 & 5 & 6 \\
+\hline
+7 & 8 & 9 \\
+\hline
+\end{tabular}
+
+
+
+The boundary bounce back calculations done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+
 
 \subsubsection{PyCUDA}
 The implementation of the PyCUDA version takes origin in the previous analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm.
@@ -255,10 +269,24 @@ int size  = nx * ny;
 
 So when wanting to access the first matrix $1 \times \mathrm{\texttt{size}}$ is added to the index \texttt{cur}, the second matrix $2 \times \mathrm{\texttt{size}}$, and so on. Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in the section (TODO: section reference) will be used for all kernels.
 
-(TODO: write about how the block amount is calculated!)
+When starting a kernel in CUDA, it needs to know the dimension of the blocks and how many blocks to launch in the grid. PyCUDA is of course no exception. The amount of blocks to launch is calculated after this simple formula
+
+\begin{verbatim}
+dim         = 16
+blockDimX   = min(nx,dim)
+blockDimY   = min(ny,dim)
+gridDimX    = (nx+dim-1)/dim
+gridDimY    = (ny+dim-1)/dim
+\end{verbatim}
+
+Here it is assumed that a block can maximally contain 256 threads ($16\times16$ threads). This might not be the case depending on the system, but it is selected as a lowest common denominator, and can at any time be changed to fit the system. First the block dimension is calculated. Since the simulated field can be smaller than the block size it is necessary to check for this. Once this is done the grid dimension can be calculated. This part relies on a trick commonly used in integer division (TODO: cite cuda by example). The result is the amount of blocks which are able to contain the requested amount of nodes. These parameters are given as arguments upon a kernel launch like this
+
+\begin{verbatim}
+prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
+\end{verbatim}
 
 
-\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 101-141 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
+\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 101--141 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
 
 (TODO: illustration of this single node propagation would be neat)
 
@@ -310,14 +338,19 @@ Here the current node accepts density from the node in the calculated position, 
 
 
 \paragraph{Density kernel}
+The density kernel runs from 143--200 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
+The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel \%s denotes the place to insert and on line 200 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
 
 \paragraph{Equilibrium kernel}
+The equilibrium kernel is implemented on lines 202--258 in \hpref{listing}{lbmcuda}. It is not different from the Matlab and PyCUDA version, except from that it is now working on each element individually. It is merely implemented in CUDA to save memory traffic to and from the GPU. In this way all the variables and calculations can reside on the GPU, saving a large overhead there is in copying variables back and forth.
 
+As with the density kernel, constants are supplied to the kernel by string replacement.
 
 
 \paragraph{Bounceback kernel}
+The bounce back kernel works in the same way as the density kernel. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
 
 
 
