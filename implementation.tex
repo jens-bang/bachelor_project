@@ -253,13 +253,73 @@ int ny    = blockDim.y * gridDim.y;
 int size  = nx * ny;
 \end{verbatim}
 
+So when wanting to access the first matrix $1 \times \mathrm{\texttt{size}}$ is added to the index \texttt{cur}, the second matrix $2 \times \mathrm{\texttt{size}}$, and so on. Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in the section (TODO: section reference) will be used for all kernels.
+
+(TODO: write about how the block amount is calculated!)
 
 
-Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in the section (TODO: section reference) will be used for all kernels.
+\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 101-141 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
+
+(TODO: illustration of this single node propagation would be neat)
+
+As mentioned before, threads must be aware of their position in data by inferring it from their position in the block/grid layout. This is already done above. What is missing is an indexing of the nearest neighbours, and the wrapping which occurs in the original code. Since we already have x- and y-index it is easy to get the nearest neighbours of a node, it is just a matter of adding and/or subtracting one to the x- and/or y-index, still keeping in mind that the y-index needs to be further linearised.
+
+Wrapping the matrices is a bit more complex procedure. The thread has no concept of the matrix as is, therefore it is necessary that the thread knows what to do, if it's on the edge of the matrix and about to be propagated in a direction outside the matrix.
+
+When a thread tries to access a space which is beyond the border of the matrix, the index should wrap around to the beginning of the matrix. This is usually done by using integer division. By calculating the index modulus (\%) total number of nodes we get this wrapping behaviour. If the matrix is 10 nodes wide for example and we want to propagate the last node in an eastward direction, we would have to wrap around and assign the value in the last node to the first node in the array. What happens is if we access element 11 we get
+
+\begin{verbatim}
+10 % 10 = 0
+\end{verbatim}
+
+keeping in mind that arrays are using zero-based index. This is exactly what we want to do and it will work for individual nodes independently, so they will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
+
+There is a snag in using this method though. CUDA does not behave well when a negative index is referenced, which is needed for five of the directions. Tests show that CUDA simply ignores the case
+
+\begin{verbatim}
+-1 % 10 = -1
+\end{verbatim}
+
+where the expected outcome would be
+
+\begin{verbatim}
+-1 % 10 = 9
+\end{verbatim}
+
+e.g. the last index in the array. Thus modulus cannot be used in this way. As a side note it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (TODO: cite cuda best practices here).
+
+A better way to solve this problem relies on conditionals. Simply by letting the thread check if the node is on the edge of the matrix by comparing the current node's position with the maximum amount of nodes, or with zero if it is propagating the other direction sufficed. For brevity the ternary operator is used, which has the form
+
+\begin{verbatim}
+test ? true : false
+\end{verbatim}
+
+In this way it is easy to let each thread check if it is on the edge of the matrix and take the appropriate action if so, otherwise getting the index of its neighbour. This is done so
+
+\begin{verbatim}
+int F1 = (x==0?nx-1:x-1) + y * nx;
+\end{verbatim}
+
+This might seem reverse compared with previous code, since one would expect that the last index should be wrapped around, e.g. the node reaching the maximum of the matrix. This is not the case since we now view from a single node and need to accept densities from surrounding nodes. It becomes clearer when viewing the assignment
+
+\begin{verbatim}
+F[1*size + cur] = T[1*size + F1];
+\end{verbatim}
+
+Here the current node accepts density from the node in the calculated position, thus if the current node is at position zero, it should get density from position $nx-1$ in the array (the end of the array), thereby propagating density in an eastward fashion (TODO: illustrate the accepting of density).
+
+
+\paragraph{Density kernel}
 
 
 
+\paragraph{Equilibrium kernel}
 
-no convenience like slicing... linearization
+
+
+\paragraph{Bounceback kernel}
+
+
+
 
 
