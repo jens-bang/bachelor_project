@@ -129,11 +129,46 @@ To expand a matrix with a new dimension, which is needed for the boundary calcul
 
 
 \subsection{PyCUDA}
+
+\insfig{./images/pycudaworkflow.eps}{1.0\textwidth}{pycuda workflow}{pcwork}
+
 PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will also gain more reliability by keeping the execution on the same platform.
 
-PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. The \texttt{SourceModule} utilizes a just-in-time compilation process. (TODO: check fact!) This means that the kernel is only compiled at the moment it is needed.
+PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. A kernel is defined as a string like this
 
-As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_ alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_ htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_ dtoh}.
+\begin{verbatim}
+mod = SourceModule("""
+__global__ void multiply_them(float *dest, float *a, float *b)
+{
+  const int i = threadIdx.x;
+  dest[i] = a[i] * b[i];
+}
+""")
+\end{verbatim}
+
+This is just ordinary CUDA C, embedded in the Python code. To get the handle for the kernel this is done
+
+\begin{verbatim}
+multiply_them = mod.get_function("multiply_them")
+\end{verbatim}
+
+Now \texttt{multiply\_them} can be called and the kernel will run with supplied arguments. When passing parameters as constant, it is easy to string replace them into the kernel before it gets turned into a CUDA kernel. This is done like so
+
+\begin{verbatim}
+mult_string = """
+__global__ void multiply_them(float *dest, float *a, float *b)
+{
+  const int i = threadIdx.x;
+  dest[i] = a[i] * b[i] * %s;
+}
+"""
+mult_string = mult_string % constant
+mod = SourceModule(mult_string)
+\end{verbatim}
+
+Here the \%s denotes the location for replacement and the string is inserted right after the kernel string. As usual the string is entered into the \texttt{SourceModule} and the kernel is ready to go.
+
+As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
 When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
 
@@ -164,28 +199,28 @@ Now the that the reference has been set up, it is possible to load data into the
 
 Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} (TODO: cite the pycuda manual).
 
-A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray with an \textit{ndarray} as template the following command can be used.
+A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray with an \textit{ndarray} as template the following command can be used
 
 \begin{verbatim}
 a = gpuarray.empty_like(x)
 \end{verbatim}
 
-To 
+To copy an existing \textit{ndarray} to the GPU using GPUArray following can be used
 
 \begin{verbatim}
-a = gpuarray.to_gpu(numpy.array(5, dtype=numpy.float32))
+a_gpu = gpuarray.to_gpu(numpy.array(5, dtype=numpy.float32))
 \end{verbatim}
 
-Hence it the memory allocation and copying to memory is mostly abstracted away.
+Hence it the memory allocation and copying to memory is mostly abstracted away and \texttt{a\_gpu} can be used as an argument for a kernel call immediately. To return the array to the host the following can be called
 
-A GPUArray can also bind to a texture reference.
+\begin{verbatim}
+a_cpu = a_gpu.get()
+\end{verbatim}
 
-The GPUArray can perform basic linear algebra. 
+which will return\texttt{a\_gpu} to a normal \textit{ndarray} \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation making it an attractive alternative. It is limited though. It is not compatible with custom elementwise operations needed in the program in question, therefore it was opted out.
 
 
 
-
-\newpage
 \subsection{Design choices}
 In this section the choices made during the implementation of the D2Q9 LBM will described. The implementation takes origin in the Matlab code included in \hpref{listing}{lbmmatlab}.
 
@@ -343,8 +378,25 @@ The bounce back kernel works in the same way as the density kernel. The thread u
 
 
 \subsection{Correctness}
+To test for the correctness of the two implementations in NumPy and PyCUDA, a test was devised involving the original Matlab script. The aim of the test was of course to generate the same output in each of the different versions. A 10 by 10 field in a tunnel boundary setup was used to create the same conditions in each implementation. The Matlab script would generate a unique pattern after 150 iterations, so the test was if the two other implementations would do the same under equal conditions. Here are the results
 
-\insfig{./images/matlabControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
-\insfig{./images/numpyControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
-\insfig{./images/pycudaControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
+\begin{figure}[H]
+\centering
+\subfigure[Matlab]{
+\includegraphics[width=0.30\textwidth]{./images/matlabControl.png}
+\label{corectness:a}
+}
+\hspace{1pt}
+\subfigure[NumPy]{
+\includegraphics[width=0.30\textwidth]{./images/numpyControl.png}
+\label{corectness:b}
+}
+\subfigure[PyCUDA]{
+\includegraphics[width=0.30\textwidth]{./images/pycudaControl.png}
+\label{corectness:c}
+}
+\caption{corectness}
+\label{correctness}
+\end{figure}
+
 
