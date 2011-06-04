@@ -227,8 +227,10 @@ In this section the choices made during the implementation of the D2Q9 LBM will 
 To be able to perform a proper comparison between the CPU-- and GPU--version of the model, a NumPy version has been created also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the \texttt{timeit} class.
 
 
+
 \subsubsection{Data layout}
 The data layout is well founded by the analysis of the Matlab script to consist of a two dimensional matrix, repeated nine times for the D2Q9 LBM. The D2Q9 LBM maintains densities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $nx \cdot ny$ then to be able to contain this, the data structure must be able to contain $9 \cdot nx \cdot ny$. For both the NumPy and PyCUDA version the matrix index has been chosen as the first dimension instead of the third as it is in the Matlab script. This is because it is easier to handle upon linearisation and will fit the usage of some commands like \texttt{add.reduce}.
+
 
 
 \subsubsection{NumPy}
@@ -244,6 +246,7 @@ F[1,:,1:]    = T[1,:,:-1]
 The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated like this (TODO: make illustration of numpy wrapping)
 
 The boundary bounce back calculations done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+
 
 
 \subsubsection{PyCUDA}
@@ -377,8 +380,9 @@ The bounce back kernel works in the same way as the density kernel. The thread u
 
 
 
+
 \subsection{Correctness}
-To test for the correctness of the two implementations in NumPy and PyCUDA, a test was devised involving the original Matlab script. The aim of the test was of course to generate the same output in each of the different versions. A 10 by 10 field in a tunnel boundary setup was used to create the same conditions in each implementation. The Matlab script would generate a unique pattern after 150 iterations, so the test was if the two other implementations would do the same under equal conditions. Here are the results
+To test for the correctness of the two implementations in NumPy and PyCUDA, a test was devised involving the original Matlab script. The aim of the test was of course to generate the same output in each of the different versions. A 10 by 10 field with a boundary consisting of one line along the x-axis was used to create the same conditions in each implementation. The implementation of propagation wraps around so it is as if the flow is surrounded vertically in a tube. The Matlab script would generate a unique pattern after 150 iterations, so the test was if the two other implementations would do the same under equal conditions. Here are the results
 
 \begin{figure}[H]
 \centering
@@ -395,8 +399,17 @@ To test for the correctness of the two implementations in NumPy and PyCUDA, a te
 \includegraphics[width=0.27\textwidth]{./images/pycudaControl.png}
 \label{correctness:c}
 }
-\caption{correctness}
+\caption{Testing that the three implementations give the same output under equal conditions}
 \label{correctness}
 \end{figure}
 
-A visual inspection of \hpref{figure}{correctness}
+A visual inspection of \hpref{figure}{correctness} reveals that the implementations are correct and produce the expected results according to the original Matlab implementation. There is however a small inaccuracy in the PyCUDA version on \hpref{figure}{correctness:c}, some of the velocities don't have exactly same length and direction as the NumPy version in \hpref{figure}{correctness:b}. This can be attributed to floating point inaccuracy (TODO: cite cuda best practices and maybe others).
+
+
+
+\subsection{Optimization}
+To further optimize the PyCUDA implementation one would look into different memory structures. The limiting factor in most parallel algorithms is the memory access pattern. Global memory is a relatively slow memory compared with the shared memory or the texture memory. Each of these have their specific purpose, and thought needs to be given on when to use them. 
+
+
+
+\subsection{Issues/bugs}
