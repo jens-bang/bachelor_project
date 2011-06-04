@@ -10,8 +10,9 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 
 ' Simulation attributes '
-nx = 32
-ny = 32
+nx = 10
+ny = 10
+it = 150
 
 ' Constants '
 omega   = 1.0
@@ -19,6 +20,7 @@ density = 1.0
 t1      = 4/9.0
 t2      = 1/9.0
 t3      = 1/36.0
+deltaU  = 1e-7
 c_squ   = 1/3.0
 
 ' Create the main arrays '
@@ -48,7 +50,7 @@ elif scenery == 1:
 # Random porous domain
 elif scenery == 2:
     BOUND  = np.random.randint(2, size=(nx,ny)).astype(np.float32)
-# Lid driven cavity cavity
+# Lid driven cavity
 elif scenery == 3:
     BOUND  [-1,:]  = 1.0
     BOUND  [1:,0]  = 1.0
@@ -186,7 +188,7 @@ densityKernel = """
             }
         } else {
             if(x == 0) {
-                UX[cur] += 0.000001f;
+                UX[cur] += %sf;
             }
         }
         
@@ -197,7 +199,7 @@ densityKernel = """
         }
     }
     """
-densityKernel = densityKernel % scenery
+densityKernel = densityKernel % (scenery, deltaU)
     
 eqKernel = """
     __global__ void eqKernel(float *F, float* FEQ, float *DENSITY, float *UX, 
@@ -285,9 +287,9 @@ density     = mod.get_function("densityKernel")
 eq          = mod.get_function("eqKernel")
 bounceback  = mod.get_function("bouncebackKernel")
 
-def loop(it):
+def loop(iterations):
     ts = 0
-    while(ts<it):
+    while(ts<iterations):
         ' To avoid overwrites a temporary copy is made of F '
         T[:] = F
         cuda.memcpy_htod(T_gpu, T)
@@ -315,7 +317,7 @@ def loop(it):
         ts += 1
 
 ' Run the loop '
-loop(900)
+loop(it)
 
 ' Copy UX and UY back to host '
 cuda.memcpy_dtoh(UX, UX_gpu)
@@ -325,7 +327,10 @@ cuda.memcpy_dtoh(UY, UY_gpu)
 import matplotlib.pyplot as plt
 UY *= -1
 plt.hold(True)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Flow field after %sdt' % it)
 plt.quiver(UX,UY, pivot='middle', color='blue')
 plt.imshow(BOUND, interpolation='nearest', cmap='gist_yarg')
-plt.imshow(np.sqrt(UX*UX+UY*UY)) # fancy rainbow plot
+#plt.imshow(np.sqrt(UX*UX+UY*UY)) # fancy rainbow plot
 plt.show()

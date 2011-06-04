@@ -206,19 +206,7 @@ F[1,:,0]     = T[1,:,-1]
 F[1,:,1:]    = T[1,:,:-1]
 \end{verbatim}
 
-The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated like this
-
-\begin{tabular}{|c|c|c|}
-\hline
-1 & 2 & 3 \\
-\hline
-4 & 5 & 6 \\
-\hline
-7 & 8 & 9 \\
-\hline
-\end{tabular}
-
-
+The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated like this (TODO: make illustration of numpy wrapping)
 
 The boundary bounce back calculations done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
@@ -286,7 +274,7 @@ prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
 \end{verbatim}
 
 
-\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 101--141 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
+\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 103--143 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
 
 (TODO: illustration of this single node propagation would be neat)
 
@@ -338,13 +326,13 @@ Here the current node accepts density from the node in the calculated position, 
 
 
 \paragraph{Density kernel}
-The density kernel runs from 143--200 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
+The density kernel runs from 143--202 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
-The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel \%s denotes the place to insert and on line 200 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
+The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel \%s denotes the place to insert and on line 202 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
 
 \paragraph{Equilibrium kernel}
-The equilibrium kernel is implemented on lines 202--258 in \hpref{listing}{lbmcuda}. It is not different from the Matlab and PyCUDA version, except from that it is now working on each element individually. It is merely implemented in CUDA to save memory traffic to and from the GPU. In this way all the variables and calculations can reside on the GPU, saving a large overhead there is in copying variables back and forth.
+The equilibrium kernel is implemented on lines 204--260 in \hpref{listing}{lbmcuda}. It is not different from the Matlab and PyCUDA version, except from that it is now working on each element individually. It is merely implemented in CUDA to save memory traffic to and from the GPU. In this way all the variables and calculations can reside on the GPU, saving a large overhead there is in copying variables back and forth.
 
 As with the density kernel, constants are supplied to the kernel by string replacement.
 
@@ -354,5 +342,9 @@ The bounce back kernel works in the same way as the density kernel. The thread u
 
 
 
+\subsection{Correctness}
 
+\insfig{./images/matlabControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
+\insfig{./images/numpyControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
+\insfig{./images/pycudaControl.png}{0.5\textwidth}{blabla}{matlabcontrol}
 

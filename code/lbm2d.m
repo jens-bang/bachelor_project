@@ -28,8 +28,8 @@ CI=0:msize:msize*7;
 % end
 % BOUND(nx,ny) = 1;
 %a=repmat(-15:15,[31,1]);BOUND=(a.^2+a'.^2)<16;BOUND(1:nx,[1 ny])=1;
-%BOUND=zeros(nx,ny);BOUND(1:nx,1)=1;%open channel
-BOUND=rand(nx,ny)>0.7; %extremely porous random domain
+BOUND=zeros(nx,ny);BOUND(1:nx,1)=1;%open channel
+%BOUND=rand(nx,ny)>0.7; %extremely porous random domain
 ON=find(BOUND); %matrix offset of each Occupied Node
 TO_REFLECT=[ON+CI(1) ON+CI(2) ON+CI(3) ON+CI(4) ...
             ON+CI(5) ON+CI(6) ON+CI(7) ON+CI(8)];
