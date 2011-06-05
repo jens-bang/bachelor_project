@@ -75,7 +75,15 @@ University of Copenhagen
 
 \section{Introduction}
 
+This paper is a bachelor project written by bachelor degree students at The Computer Science Department of The University of Copenhagen. As such the intended readers are anyone with an interest in the subject matter, as well as a basic understanding of computer science and programming in Python. The object of the paper is to examine a possible gain in execution speed, when using CUDA to implement the Lattice Boltzmann Model. It is not the object of the paper to fulle explain the Lattice Boltzmann Model, so while a reasonable understanding of physics is preferrable, it is not necessary.
 
+When we started this paper, the plan was to implement a Python version of the Lattice Boltzmann Model using CUDA, as well as a C++ version of the same code. The object was to compare CUDA implementations in Python and C/C++, to see if the ease of implementation in Python would mean a loss of execution speed, as compared to the executon speed of the longer implementation time of C/C++.
+
+During the work on the paper we realized that writing CUDA code in Python is simply embedding C code in the Python code, which will then be passed on to precisely the same compiler as the CUDA code in the C/C++ version. This would essentially mean that comparing the run times of the two implementations, would only reveal the differences between the run times of the initializing code, and nothing about the run times of the CUDA itself.
+
+Since this would be a comparison of normal C/C++ code run times to normal Python code run times, with no CUDA involved, a case that has already been extensively documented, and since we wanted to investigate a possible increase/decrease in execution speed when implementing CUDA code in Python, as opposed to implementing the same CUDA code in C/C++, going further would clearly not accomplish anything new. For this reason we, in agreement with out advisor, changed the scope of the paper to investigate possible speed increases or decreses, when implementing the Lattice Boltzmann Model in Python using pyCUDA, as opposed to implementing the same model in Python using NumPy.
+
+The two Python implementations of the Lattice Boltzmann Model are both based on a MatLab implementation of the model, which will be introduced in the Implementation section of this paper. [@@@@ Kan man automatisk indsætte den korrekte titel på afsnittet?]
 
 Reference tests:
 
