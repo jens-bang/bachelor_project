@@ -133,7 +133,7 @@ To expand a matrix with a new dimension, which is needed for the boundary calcul
 \subsection{PyCUDA}
 PyCUDA is an extension for the Python language, that allows for full access to functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. The workflow of PyCUDA is shown in \hpref{figure}{pcwork}. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this report. The testing procedure will also gain more reliability by keeping the execution on the same platform.
 
-\insfig{./images/pycudaworkflow.pdf}{1.0\textwidth}{PyCUDA workflow (TODO: reference klockners paper}{pcwork}
+\insfig{./images/pycudaworkflow.pdf}{1.0\textwidth}{PyCUDA workflow (from \cite{kloeckner_pycuda_2009})}{pcwork}
 
 PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be entered directly into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA-kernels. A kernel is defined as a string like this
 

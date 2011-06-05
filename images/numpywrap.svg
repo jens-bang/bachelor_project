@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.0 r9654"
-   sodipodi:docname="numpywrap.png">
+   sodipodi:docname="numpywrap.eps">
   <defs
      id="defs4">
     <marker
@@ -81,10 +81,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="294.09417"
+     inkscape:cx="166.95131"
      inkscape:cy="143.18942"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:snap-bbox="false"
      inkscape:bbox-paths="true"
@@ -93,7 +93,7 @@
      inkscape:window-height="852"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      inkscape:snap-global="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -131,21 +131,17 @@
          d="m 306.98813,191.61056 c -20.52092,3.21538 -55.88986,5.45879 -114.64073,5.45879 -56.07772,0 -90.81117,-2.07662 -111.712827,-5.08277"
          style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none;marker-mid:none;marker-end:none;filter:url(#filter5798)" />
     </g>
-    <g
-       id="g5998"
-       transform="translate(0,111.78571)">
-      <path
-         sodipodi:nodetypes="csc"
-         inkscape:connector-curvature="0"
-         id="path6000"
-         d="m 316.5349,169.13171 c 0,0 83.85316,27.93764 -123.47321,27.93764 -203.0406643,0 -126.26907,-27.22335 -126.26907,-27.22335"
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none;marker-mid:none;marker-end:url(#Arrow2Mend)" />
-      <path
-         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none;marker-mid:none;marker-end:none;filter:url(#filter5798)"
-         d="m 306.98813,191.61056 c -20.52092,3.21538 -55.88986,5.45879 -114.64073,5.45879 -56.07772,0 -90.81117,-2.07662 -111.712827,-5.08277"
-         id="path6002"
-         inkscape:connector-curvature="0" />
-    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none;marker-mid:none;marker-end:url(#Arrow2Mend)"
+       d="m 316.5349,280.91742 c 0,0 83.85316,27.93764 -123.47321,27.93764 -203.0406643,0 -126.26907,-27.22335 -126.26907,-27.22335"
+       id="path6000"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="csc" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path6002"
+       d="m 306.98813,303.39627 c -20.52092,3.21538 -55.88986,5.45879 -114.64073,5.45879 -56.07772,0 -90.81117,-2.07662 -111.712827,-5.08277"
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker-start:none;marker-mid:none;marker-end:none;filter:url(#filter5798)" />
     <g
        id="g6004"
        transform="translate(0,55.714286)">
@@ -182,7 +178,8 @@
      inkscape:groupmode="layer"
      id="layer1"
      style="display:inline"
-     transform="translate(-52.058248,-58.281035)">
+     transform="translate(-52.058248,-58.281035)"
+     sodipodi:insensitive="true">
     <rect
        style="opacity:0.78037379;fill:#ffffff;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect2989"
