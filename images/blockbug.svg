@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="437.28571"
+   height="460.99658"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="blockbug.svg">
+  <defs
+     id="defs4">
+    <filter
+       inkscape:collect="always"
+       id="filter3800"
+       x="-0.15515734"
+       width="1.3103147"
+       y="-0.15515734"
+       height="1.3103147"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="9.7827248"
+         id="feGaussianBlur3802" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3804"
+       x="-0.15515734"
+       width="1.3103147"
+       y="-0.15515734"
+       height="1.3103147"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="9.7827248"
+         id="feGaussianBlur3806" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3808"
+       x="-0.15515734"
+       width="1.3103147"
+       y="-0.15515734"
+       height="1.3103147"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="9.7827248"
+         id="feGaussianBlur3810" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3812"
+       x="-0.15515734"
+       width="1.3103147"
+       y="-0.15515734"
+       height="1.3103147"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="9.7827248"
+         id="feGaussianBlur3814" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="141.81524"
+     inkscape:cy="133.44411"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="852"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer"
+     sodipodi:insensitive="true"
+     transform="translate(-47.077048,-9.2511351)">
+    <rect
+       y="64.776649"
+       x="113.84419"
+       height="151.32085"
+       width="151.32085"
+       id="rect3772"
+       style="opacity:0.69158882;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3800)" />
+    <rect
+       style="opacity:0.69158882;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3804)"
+       id="rect3774"
+       width="151.32085"
+       height="151.32085"
+       x="290.62088"
+       y="64.776649" />
+    <rect
+       y="241.55334"
+       x="113.84419"
+       height="151.32085"
+       width="151.32085"
+       id="rect3776"
+       style="opacity:0.69158882;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3808)" />
+    <rect
+       style="opacity:0.69158882;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3812)"
+       id="rect3778"
+       width="151.32085"
+       height="151.32085"
+       x="290.62088"
+       y="241.55334" />
+  </g>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     transform="translate(-47.077048,-9.2511351)">
+    <rect
+       style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2985"
+       width="151.32085"
+       height="151.32085"
+       x="113.84419"
+       y="56.755833" />
+    <rect
+       y="56.755833"
+       x="290.62088"
+       height="151.32085"
+       width="151.32085"
+       id="rect2987"
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <rect
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2989"
+       width="151.32085"
+       height="151.32085"
+       x="113.84419"
+       y="233.53253" />
+    <rect
+       y="233.53253"
+       x="290.62088"
+       height="151.32085"
+       width="151.32085"
+       id="rect2991"
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <rect
+       y="233.53253"
+       x="113.84419"
+       height="31.59079"
+       width="151.32085"
+       id="rect2997"
+       style="fill:#0000ff;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <rect
+       style="fill:#0000ff;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2999"
+       width="151.32085"
+       height="31.59079"
+       x="-208.07668"
+       y="290.62088"
+       transform="matrix(0,-1,1,0,0,0)" />
+    <rect
+       style="fill:#0000ff;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3001"
+       width="32.021286"
+       height="31.59079"
+       x="290.62088"
+       y="233.53253" />
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="46.669048"
+       y="25.643135"
+       id="text3835"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3837"
+         x="46.669048"
+         y="25.643135">Block</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="183.50461"
+       y="25.643135"
+       id="text3839"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3841"
+         x="183.50461"
+         y="25.643135">0</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="360.22131"
+       y="25.643135"
+       id="text3843"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3845"
+         x="360.22131"
+         y="25.643135">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="66.46804"
+       y="140.36026"
+       id="text3847"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3849"
+         x="66.46804"
+         y="140.36026">0</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="68.436043"
+       y="317.30496"
+       id="text3851"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3853"
+         x="68.436043"
+         y="317.30496">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="311.12701"
+       y="52.513191"
+       id="text3855"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3857"
+         x="311.12701"
+         y="52.513191">nx</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="87.681244"
+       y="269.59497"
+       id="text3859"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3861"
+         x="87.681244"
+         y="269.59497">ny</tspan></text>
+    <rect
+       style="fill:#ff0000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3863"
+       width="29.698484"
+       height="29.698484"
+       x="265.16507"
+       y="432.93665" />
+    <rect
+       y="432.93665"
+       x="70.003571"
+       height="29.698484"
+       width="29.698484"
+       id="rect3867"
+       style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="105.35892"
+       y="453.44272"
+       id="text3869"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3871"
+         x="105.35892"
+         y="453.44272">Allocated mem</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:TeX Gyre Termes;-inkscape-font-specification:TeX Gyre Termes"
+       x="301.93463"
+       y="440.00772"
+       id="text3873"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3875"
+         x="301.93463"
+         y="440.00772">Threads accessing </tspan><tspan
+         sodipodi:role="line"
+         x="301.93463"
+         y="470.00772"
+         id="tspan3877">non allocated mem</tspan></text>
+  </g>
+</svg>
