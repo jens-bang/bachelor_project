@@ -69,7 +69,9 @@ The indices of obstacles in matrix 1--8 is saved in the variable TO\_REFLECT and
 
 The density is easily calculated by use of the sum command, which sums the matrices up along the third axis, i.e. the density matrices 1--9 are reduced to one.
 
-The UX and UY variables are created summing only the density matrices having either non-zero x- or y-component. The meaning of x- and y-component is illustrated in (TODO:insert snazzy figure illustrating the directional vectors summed across axes).
+The UX and UY variables are created summing only the density matrices having either non-zero x- or y-component. The meaning of x- and y-component is illustrated in \hpref{figure}{uxuy}.
+
+\insfig{./images/uxuy.eps}{0.7\textwidth}{The \texttt{UX} and \texttt{UY} variables are created}{uxuy}
 
 \subparagraph*{Equilibrium}
 The equilibrium part that runs from 63--88 increases the inlet pressure as to create a constant flow in the simulation. This part also uses the result from the density part to calculate some constants used in calculation of the equilibrium. The equilibrium is calculated for each density matrix 1--9, the first one being the stationary state as seen below.
@@ -263,9 +265,9 @@ This is done by clever use of the block index, block dimension and thread index.
 idx = threadIdx.x + blockIdx.x * blockDim.x;
 \end{verbatim}
 
-in figure (TODO: make a figure like in notes), it can be seen how this works for two thread locations within the CUDA-kernel. The block dimension is used together with the block index, to determine what block the thread is within, then it is only to add the thread index within the found block and we have the linear index. This technique is used throughout the code in implementing the GPU-version of the D2Q9 LBM, only extended to either two or three dimensions.
+in \hpref{figure}{linearindex}, it can be seen how this works for two thread locations within the CUDA-kernel. The block dimension is used together with the block index, to determine what block the thread is within, then it is only to add the thread index within the found block and we have the linear index. This technique is used throughout the code in implementing the GPU-version of the D2Q9 LBM, only extended to either two or three dimensions.
 
-\insfig{./images/linearindex.pdf}{1.0\textwidth}{linear index}{linearindex}
+\insfig{./images/linearindex.pdf}{1.0\textwidth}{Calculating the linear index of data-point in an array for the CUDA thread to access}{linearindex}
 
 Initially the project focused on implementing the D3Q19 LBM so some work went into arranging data to fit this model. As blocs are limited as to how many threads can run within them, the main issue which must be resolved when making an algorithm parallel arises. For the D3Q19 case the main issue was to fit a three dimensional problem into a two dimensional space. A block can contain three dimensions, but this will minimize the amount of threads available to run in each dimension. Also, the third dimension will still be limited to the maximum allowable threads per block(TODO: insert a figure illustrating this limitation). The solution is to linearise the third dimension into the grid layout, where a block can have two dimensions corresponding to the simulated field's size, and then be repeated as a series of blocks in the grid corresponding to the third dimension.
 
@@ -361,8 +363,9 @@ This might seem reverse compared with previous code, since one would expect that
 F[1*size + cur] = T[1*size + F1];
 \end{verbatim}
 
-Here the current node accepts density from the node in the calculated position, thus if the current node is at position zero, it should get density from position $nx-1$ in the array (the end of the array), thereby propagating density in an eastward fashion (TODO: illustrate the accepting of density).
+Here the current node accepts density from the node in the calculated position, thus if the current node is at position zero, it should get density from position $nx-1$ in the array (the end of the array), thereby propagating density in an eastward fashion. The propagation of a single node is illustrated in \hpref{figure}{cudaprop}
 
+\insfig{./images/cudaprop.pdf}{0.4\textwidth}{A single node accepting densities from surrounding neighbours}{cudaprop}
 
 \paragraph{Density kernel}
 The density kernel runs from 143--202 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
@@ -420,6 +423,8 @@ Utilizing shared memory in each block would provide a performance gain also, but
 \subsection{Issues/bugs}
 An issue exists in the kernel launch. The problem arises when trying to launch a kernel larger than the maximum block size (currently set to $16\times16$, and is not a multiple of $16$. If the simulated field is chosen to say for example $25\times25$, the program will throw an error.
 
-The reason why this happens is that the kernel is launched with a fixed block size, and it is the same along the whole grid. Therefore when the kernel is launched, and the allocated memory does not fit with the block size, e.g. the block size is larger than the memory, the program will try to access memory which is not allocated. The real reason for this is that the threads are designed to run on a full block size regardless on the underlying data. The situation is illustrated in figure (TODO: insert figure from bug description)
+The reason why this happens is that the kernel is launched with a fixed block size, and it is the same along the whole grid. Therefore when the kernel is launched, and the allocated memory does not fit with the block size, e.g. the block size is larger than the memory, the program will try to access memory which is not allocated. The real reason for this is that the threads are designed to run on a full block size regardless on the underlying data. The situation is illustrated in figure \hpref{figure}{blockbug}
+
+\insfig{./images/blockbug.pdf}{0.4\textwidth}{The allocated memory is smaller than the designated block size}{blockbug}
 
 The way to remedy this would be to implement a check if the threads in a block are exceeding the data range, and thus have to do a no operation instead of trying to access data which is not there.
