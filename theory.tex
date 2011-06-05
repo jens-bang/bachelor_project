@@ -1,6 +1,23 @@
 \section{Theory}
 
-\subsection{Lattice Boltzmann Model}
+\subsection{Lattice Boltzmann Model (\textit{Jens Bang})}
+The Lattice Boltzmann Model (LBM) is a simplified version of the Boltzmann equation, which simulates the behaviour of fluid flows. The simplification consists of limiting the particles to only occupy certain points in space (vertices in a lattice), and to only travel along specified directional vectors, with constant speed. 
+
+In this way the Lattice Boltzmann Model (LBM) describe simple fluids (gas and liquids), i.e. it ignores thermal effects and tracers. The LBM simulates movements in fluids by looking at particles found at points in a lattice at discrete time-steps. There are different versions of the LBM using either 2-dimensional or 3-dimensional lattices.
+
+Each point in the lattice has a set of state-variables attached, describing the state of the particle found at that point. Each point also has a set of fixed directions, along which the particle can travel. In a 2-dimensional lattice there are normally 9 directions, while in a 3-dimensional lattice you see either 15 or 19 directions. These 3 setups are normally referred to as D2Q9, D3Q15 and D3Q19.
+
+\insfig{./images/d2q9_d3q19.png}{0.5\textwidth}{LBM directions (TODO: Insert reference to Scholarpedia)}{lbmdirections}
+
+The LBM divides the flow of gasses or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles.
+
+\subsubsection{Using the LBM}
+Since the LBM is especially well suited to simulate flows around even very complex geometric structures, it has a wide variety of practical uses. Among these are:
+\begin{itemize}
+\item Simulating pore-scale processes in porous media [@@@@Ref: BrittSBChristensenPhD-Thesis.pdf]
+\item Windmills [@@@@Mangler ref]
+\item Andet?
+\end{itemize}
 
 \subsection{CPU vs. GPU}
   Different goals produce different designs !   GPU assumes work load is highly parallel !   CPU must be good at everything, parallel or not
