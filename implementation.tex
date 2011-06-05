@@ -50,7 +50,7 @@ On the right hand side a new matrix is created from F, by simply re-indexing the
 10     1     2     3     4     5     6     7     8     9
 \end{verbatim}
 
-essentially propagating the data in an eastward direction, by wrapping the end of the matrix around and shifting forward the rest, corresponding to vector c1 in (TODO: reference to neat figure here). The rest of the expression says to go along all elements of the second axis, and only operate on matrix one out of nine. One thing to keep in mind when analysing Matlab code is that it uses one-based indexing, as opposed to most programming languages (e.g. Python) which uses zero-based indexing.
+essentially propagating the data in an eastward direction, by wrapping the end of the matrix around and shifting forward the rest, corresponding to vector c1 in \hpref{figure}{lbmdirections}. The rest of the expression says to go along all elements of the second axis, and only operate on matrix one out of nine. One thing to keep in mind when analysing Matlab code is that it uses one-based indexing, as opposed to most programming languages (e.g. Python) which uses zero-based indexing.
 
 The rest of the propagation part of the script is simply an extension of the above, with only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question. (TODO: maybe reference theory for clarification of what directions there are?)
 
@@ -244,7 +244,9 @@ F[1,:,0]     = T[1,:,-1]
 F[1,:,1:]    = T[1,:,:-1]
 \end{verbatim}
 
-The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated like this (TODO: make illustration of numpy wrapping)
+The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently elements one to the end (\texttt{1:}) are assigned to elements zero to next last (\texttt{:-1}). The mechanics of this procedure is illustrated in \hpref{figure}{numpywrap}
+
+\insfig{./images/numpywrap.png}{0.7\textwidth}{Wrapping and shifting mechanism in one direction for NumPy}{numpywrap}
 
 The boundary bounce back calculations done by using two matrices, one normal and one inverted matrix containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied on the eight directional matrices which results in an erasure of all other than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
@@ -281,7 +283,7 @@ The two dimensional case D2Q9 is however much simpler. Here it is just a matter 
 int x     = threadIdx.x + blockIdx.x * blockDim.x;
 int y     = threadIdx.y + blockIdx.y * blockDim.y;
 int nx    = blockDim.x * gridDim.x;
-int cur = x + y * nx;
+int cur 	  = x + y * nx;
 \end{verbatim}
 
 This successfully emulates a two dimensional array by using the block and thread index in the y-direction also. The trick is that when the y-coordinate increases the index has to follow the principle of the linearisation. Here when a y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (TODO: illustrate). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index. But we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by nx, which is the horizontal dimension of the simulated field (being a block's size times the amount of blocks) for every y-coordinate.
