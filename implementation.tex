@@ -10,23 +10,23 @@ The NumPy and CUDA implementations take origin in a Matlab script. The analysis 
 		\toprule
 		Variable & Type & Purpose \\
 		\midrule
-		F 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
-		FEQ 			& $nx\times ny\times 9$ (double)	& equilibrium state of the nine matrices\\
+		\texttt{F} 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
+		\texttt{FEQ} 			& $nx\times ny\times 9$ (double)	& equilibrium state of the nine matrices\\
 
-		BOUND 			& $nx\times ny$ (binary) 		& boundary defined by 1's ($b$)\\
-		CI				& $8\times 1$ (integer) 			& linear index of directional matrices\\
-		ON				& $b\times 1$ (integer)			& linear index of obstacle nodes\\
-		TO\_REFLECT 		& $b\times 8$ (integer)			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
-		REFLECTED 		& $b\times 8$ (integer) 			& linear index of nodes to recover from BOUNCEBACK over all nine matrices \\
-		BOUNCEBACK		& $b\times 8$ (integer) 			& densities bouncing back\\
-		DENSITY			& $nx\times ny$ (double) 		& summation of all nine matrices\\
-		UX				& $nx\times ny$ (double) 		& summation of all densities with non zero x-component\\
-		UY				& $nx\times ny$ (double) 		& summation of all densities with non zero y-component \\
-		U\_SQU			& $nx\times ny$ (double) 		& sum of UX squared and UY squared\\
-		U\_C2			& $nx\times ny$ (double) 		& sum of UX and UY\\
-		U\_C4			& $nx\times ny$ (double) 		& negative sum of UX and UY\\
-		U\_C6			& $nx\times ny$ (double) 		& negative of U\_C2\\
-		U\_C8			& $nx\times ny$ (double) 		& negative of U\_C4\\
+		\texttt{BOUND} 			& $nx\times ny$ (binary) 		& boundary defined by 1's ($b$)\\
+		\texttt{CI}				& $8\times 1$ (integer) 			& linear index of directional matrices\\
+		\texttt{ON}				& $b\times 1$ (integer)			& linear index of obstacle nodes\\
+		\texttt{TO\_REFLECT}		& $b\times 8$ (integer)			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
+		\texttt{REFLECTED} 		& $b\times 8$ (integer) 			& linear index of nodes to recover from BOUNCEBACK over all nine matrices \\
+		\texttt{BOUNCEBACK}		& $b\times 8$ (integer) 			& densities bouncing back\\
+		\texttt{DENSITY}			& $nx\times ny$ (double) 		& summation of all nine matrices\\
+		\texttt{UX}				& $nx\times ny$ (double) 		& summation of all densities with non zero x-component\\
+		\texttt{UY}				& $nx\times ny$ (double) 		& summation of all densities with non zero y-component \\
+		\texttt{U\_SQU}			& $nx\times ny$ (double) 		& sum of UX squared and UY squared\\
+		\texttt{U\_C2}			& $nx\times ny$ (double) 		& sum of UX and UY\\
+		\texttt{U\_C4}			& $nx\times ny$ (double) 		& negative sum of UX and UY\\
+		\texttt{U\_C6}			& $nx\times ny$ (double) 		& negative of U\_C2\\
+		\texttt{U\_C8}			& $nx\times ny$ (double) 		& negative of U\_C4\\
 		\bottomrule
 	\end{tabular}
 	\caption{Variables and their purpose in the Matlab version of D2Q9 LBM}
@@ -44,7 +44,7 @@ Propagation is where nodes densities are spread outward to affect neighbouring n
 >> F(:,:,1)=F([nx 1:nx-1],:,1);
 \end{verbatim}
 
-On the right hand side a new matrix is created from F, by simply re-indexing the original array. Basically if the simulated field is $nx=10$ wide the statement \texttt{[nx 1:nx-1]} creates the following
+On the right hand side a new matrix is created from \texttt{F}, by simply re-indexing the original array. Basically if the simulated field is $nx=10$ wide the statement \texttt{[nx 1:nx-1]} creates the following
 
 \begin{verbatim}
 10     1     2     3     4     5     6     7     8     9
@@ -57,19 +57,19 @@ The rest of the propagation part of the script is simply an extension of the abo
 \subparagraph*{Density}
 The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab} of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
 
-On line 21 of \hpref{listing}{lbmmatlab} the variable CI is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce back). This means that if the simulated field is $10\times10$ the indices would be
+On line 21 of \hpref{listing}{lbmmatlab} the variable \texttt{CI} is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce back). This means that if the simulated field is $10\times10$ the indices would be
 
 \begin{verbatim}
 0   100   200   300   400   500   600   700
 \end{verbatim}
 
-which can be used together with the variable ON, which contains the linear index for obstacle nodes, to calculate the linear position of obstacle nodes in all of the 1--8 matrices (TODO: think up a way to illustrate this with some math...).
+which can be used together with the variable \texttt{ON}, which contains the linear index for obstacle nodes, to calculate the linear position of obstacle nodes in all of the 1--8 matrices (TODO: think up a way to illustrate this with some math...).
 
-The indices of obstacles in matrix 1--8 is saved in the variable TO\_REFLECT and then used to access all positions within the F-variable where there exists an obstacle, bearing in mind that this is the same position per obstacle for each 1--8 matrix, just with different linear indices.
+The indices of obstacles in matrix 1--8 is saved in the variable \texttt{TO\_REFLECT} and then used to access all positions within the \texttt{F}-variable where there exists an obstacle, bearing in mind that this is the same position per obstacle for each 1--8 matrix, just with different linear indices.
 
 The density is easily calculated by use of the sum command, which sums the matrices up along the third axis, i.e. the density matrices 1--9 are reduced to one.
 
-The UX and UY variables are created summing only the density matrices having either non-zero x- or y-component. The meaning of x- and y-component is illustrated in \hpref{figure}{uxuy}.
+The \texttt{UX} and \texttt{UY} variables are created summing only the density matrices having either non-zero x- or y-component. The meaning of x- and y-component is illustrated in \hpref{figure}{uxuy}.
 
 \insfig{./images/uxuy.pdf}{0.7\textwidth}{The \texttt{UX} and \texttt{UY} variables are created}{uxuy}
 
@@ -82,10 +82,10 @@ FEQ(:,:,9)=t1*DENSITY.*(1-U_SQU/(2*c_squ));
 
 Here the special '.' operator is used, meaning that it is an element-wise operation, not on the full matrix.
 
-Subsequently the FEQ-variable is added to the F-variable
+Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
 \subparagraph*{Bounceback}
-The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The REFLECTED variable is just like TO\_REFLECT, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is the opposite westward direction as seen on (TODO: snazzy figure...).
+The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is the opposite westward direction as seen on (TODO: snazzy figure...).
 
 
 
@@ -122,7 +122,7 @@ Which produces the result of adding all the matrices along the first dimension, 
 >>> DENSITY = numpy.add.reduce(F, axis=2)
 \end{verbatim}
 
-To expand a matrix with a new dimension, which is needed for the boundary calculations. Since the boundary matrix is only two dimensional it is necessary to expand upon it to be able to impose the boundary on the directional matrices. This is done by the command
+To expand a matrix by a new dimension, which is needed for the boundary calculations. Since the boundary matrix is only two dimensional it is necessary to expand upon it to be able to impose the boundary on the directional matrices. This is done by the command
 
 \begin{verbatim}
 >>> BOUND[numpy.newaxis,:,:]
@@ -200,7 +200,7 @@ Now the that the reference has been set up, it is possible to load data into the
 
 Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} (TODO: cite the pycuda manual).
 
-A very neat feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray with an \textit{ndarray} as template the following command can be used
+A very clever feature in PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray with an \textit{ndarray} as template the following command can be used
 
 \begin{verbatim}
 a = gpuarray.empty_like(x)
@@ -372,7 +372,7 @@ Here the current node accepts density from the node in the calculated position, 
 \paragraph{Density kernel}
 The density kernel runs from 143--202 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
-The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel \%s denotes the place to insert and on line 202 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
+The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel '\%s' denotes the place to insert and on line 202 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
 
 \paragraph{Equilibrium kernel}
