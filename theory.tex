@@ -15,9 +15,9 @@ The LBM divides the flow of gasses or fluids into small, discrete time-steps. Fo
 Since the LBM is especially well suited to simulate flows around even very complex geometric structures, it has a wide variety of practical uses. Among these are:
 \begin{itemize}
 \item Simulating pore-scale processes in porous media [TODO Citation: BrittSBChristensenPhD-Thesis.pdf]
-\item Wind turbines [TODO Citation needed]
-\item Bridge pillars [TODO Citation needed]
-\item Others?
+\item Simulating Wind turbines [TODO Citation needed]
+\item Simulating the water flow around bridge pillars [TODO Citation needed]
+\item [TODO Others?]
 \end{itemize}
 
 \subsection{CPU vs. GPU}
@@ -30,6 +30,14 @@ threads in flight limited by resources => lots of resources (registers, bandwidt
 multithreading can hide latency => skip the big caches share control logic across many threads
 
 \subsection{Parallel processing}
+
+Many people mistakenly think of multi-threaded programming, when they hear 'Parallel processing'. While multi-threaded programs \emph{can} perform parallel processing, they don't have to. Multi-threaded programs generally run mutiple threads, where each thread perform completely different tasks, whereas parallel processing is when each process perform precisely the same task, only on different parts of a larger data set.
+
+An example of a multi-threaded program, that doesn't perform parallel processing, is a program that uses one thread to receive a video stream from an IP camera, while another thread displays the received video images on the computers screen. The program is clearly multi-threaded, since there are two separate threads, but it doesn't perform parallel processing, since the two threads perform completely different tasks.
+
+A welknown example of parallel processing on a grand scale is the SETI@Home program, where the imense amounts of data received by the SETI program is broken up into small packets, which are then handed over to different private PCs to be processed in exactly the same way.
+
+Sometimes parallel processing is performed by processes each working on their own discrete data set, like we saw in SETI@Home, while at other times the processes work on a larger, shared data set.
 
 \subsection{CUDA (\textit{Jacob Salomonsen})}
 In the beginning, GPU's had only very limited purposes. Mostly generating real-time graphics for games, but also in a few cases for production and scientific applications. This has changed since the proliferation of the pixel shader. A pixel shader basically produces a color for every point on a screen, by taking into account the (x,y) position of the pixel, the light settings of a scene, the material properties of objects in the scene and so on. Early researchers found that this ability to perform computations on each pixel could be harnessed to other uses. Since pixel shaders are completely controlled by the programmer, the possibility of simply giving a GPU data as input, instead of a scene to render, was within reach. This would mark the beginning of the general purpose GPU.
