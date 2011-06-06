@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}
-The NumPy[TODO Ref to source code] and CUDA[TODO Ref to source code] implementations take origin in a Matlab script[TODO Ref to source code]. The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a blackbox implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
+The NumPy[TODO Ref to source code] and CUDA[TODO Ref to source code] implementations take origin in a Matlab script[TODO Ref to source code]. The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
 
 \begin{table}[htb]
 	\centering
@@ -90,7 +90,7 @@ The final part bounce back is done just like at our first encounter with bounce 
 
 
 \subsection{NumPy}
-NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multicore processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
+NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multi-core processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
 
 At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which after creation cannot change in size. If an attempt to change the size of an existing array is made, the existing array is simply overwritten. To allocate an array fitting the data layout discussed in (TODO: reference to either the current section or an earlier section?), the following command is used:
 
@@ -131,9 +131,9 @@ To expand a matrix by a new dimension, which is needed for the boundary calculat
 
 
 \subsection{PyCUDA}
-PyCUDA is an extension for the Python language, that allows for full access to the functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. The workflow of PyCUDA is shown in \hpref{figure}{pcwork}. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this paper. The testing procedure will also gain more reliability by keeping the execution on the same platform.
+PyCUDA is an extension for the Python language, that allows for full access to the functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. The work-flow of PyCUDA is shown in \hpref{figure}{pcwork}. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this paper. The testing procedure will also gain more reliability by keeping the execution on the same platform.
 
-\insfig{./images/pycudaworkflow.pdf}{1.0\textwidth}{PyCUDA workflow (from \cite{kloeckner_pycuda_2009})}{pcwork}
+\insfig{./images/pycudaworkflow.pdf}{1.0\textwidth}{PyCUDA work-flow (from \cite{kloeckner_pycuda_2009})}{pcwork}
 
 PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be embedded into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA kernels. A kernel is defined as a string like this
 
@@ -171,7 +171,7 @@ mod = SourceModule(mult_string)
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
-When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
+When creating variables in NumPy, meant to be transferred to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
 
 \begin{verbatim}
 >>> F = numpy.zeros((9,nx,ny), dtype=float).astype(numpy.float32)
@@ -179,7 +179,7 @@ When creating variables in NumPy, meant to be transfered to the GPU by PyCUDA, i
 
 The \texttt{astype} ensures data is allocated as 32-bit floats, which are especially suited for CUDA.
 
-PyCUDA allows for allocation to different memory types on the GPU as seen in \hpref{figure}{cudamem}. We have already covered global memory. What remains is one of the CPU read/write GPU read memories, Texture-memory. Texture-memory is a special kind of memory which exhibits a spatial characteristic. This means that data most suited for this memory is either two or three dimensional. This memory is relatively fast compared with the global memory, but the drawback is that seen from the GPU it is read only. The allocation and usage is reminiscent of the CUDA C method. As with CUDA C a texture is defined in the kernel, which is contained withing PyCUDA's \texttt{SourceModule}
+PyCUDA allows for allocation to different memory types on the GPU as seen in \hpref{figure}{cudamem}. We have already covered global memory. What remains is one of the CPU read/write GPU read memories, Texture-memory. Texture-memory is a special kind of memory which exhibits a spatial characteristic. This means that data most suited for this memory is either two or three dimensional. This memory is relatively fast compared with the global memory, but the drawback is that seen from the GPU it is read only. The allocation and usage is reminiscent of the CUDA C method. As with CUDA C a texture is defined in the kernel, which is contained within PyCUDA's \texttt{SourceModule}
 
 \begin{verbatim}
 texture<float, 2> tex;
@@ -218,7 +218,7 @@ Hence the memory allocation and copying to memory is mostly hidden behind an abs
 a_cpu = a_gpu.get()
 \end{verbatim}
 
-This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation making it an attractive alternative. It is limited though. It is not compatible with custom elementwise operations needed in the program in question, therefore it was opted out. [TODO: From where?]
+This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation making it an attractive alternative. It is limited though. It is not compatible with custom element-wise operations needed in the program in question, therefore it was opted out. [TODO: From where?]
 
 
 
@@ -248,14 +248,14 @@ The first assignment accesses a negative index in the temporary matrix, which in
 
 \insfig{./images/numpywrap.png}{0.7\textwidth}{Wrapping and shifting mechanism in one direction for NumPy}{numpywrap}
 
-The boundary bounce back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounceback section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+The boundary bounce back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounce back section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
 
 
 \subsubsection{PyCUDA}
 The implementation of the PyCUDA version takes origin in the previous analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm.
 
-The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelized. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
+The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelised. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
 
 The main challenge in arranging data is that it is important that each thread is treated as a single non-dependent unit, which, on execution, knows where it is and what data it is supposed to operate on. To help, CUDA supplies some indexing constants for use in the kernel, as stipulated in the CUDA section (TODO: reference).
 
@@ -286,7 +286,7 @@ int nx    = blockDim.x * gridDim.x;
 int cur 	  = x + y * nx;
 \end{verbatim}
 
-This successfully emulates a two dimensional array by using the block and thread index in the y-direction as well. The trick is that when the y-coordinate increases, the index has to follow the principle of the linearisation. Here when a y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (TODO: illustrate). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index. But we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by nx, which is the horizontal dimension of the simulated field (being a block's size times the amount of blocks) for every y-coordinate.
+This successfully emulates a two dimensional array by using the block and thread index in the y-direction as well. The trick is that when the y-coordinate increases, the index has to follow the principle of the linearisation. Here when a y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (TODO: illustrate). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index. But we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by \textit{nx}, which is the horizontal dimension of the simulated field (being a block's size times the amount of blocks) for every y-coordinate.
 
 We are still missing one thing before we are ready with our indexing-scheme. We need to access nine separate matrices also by linearising their starting position, much like in the original Matlab-script's variable \texttt{CI}. As described in the data-structure section, index 0 has been chosen to contain the stationary matrix instead of 9 as in the Matlab-script. In this way all directional matrices can keep numbering consistently with the Matlab-script since Matlab uses one-based indexing and Python uses zero-based indexing.
 
@@ -321,7 +321,7 @@ prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
 
 (TODO: illustration of this single node propagation would be neat)
 
-As mentioned before, threads must be aware of their position in data by inferring it from their position in the block/grid layout. This is already done above. What is missing is an indexing of the nearest neighbours, and the wrapping which occurs in the original code. Since we already have the x- and y-indeces it is easy to get the nearest neighbours of a node, it is just a matter of adding and/or subtracting one to the x- and/or y-index, still keeping in mind that the y-index needs to be further linearised afterwards.
+As mentioned before, threads must be aware of their data's position in the overall data space, by inferring it from their position in the block/grid layout. This is already done above. What is missing is an indexing of the nearest neighbours, and the wrapping which occurs in the original code. Since we already have the x- and y-indices it is easy to get the nearest neighbours of a node, it is just a matter of adding and/or subtracting one to the x- and/or y-index, still keeping in mind that the y-index needs to be further linearised afterwards.
 
 Wrapping the matrices is a bit more complex. The thread has no concept of the matrix as is, therefore it is necessary that the thread knows what to do, if it's on the edge of the matrix and about to be propagated in a direction outside the matrix.
 
@@ -331,7 +331,7 @@ When a thread tries to access a space which is beyond the border of the matrix, 
 10 % 10 = 0
 \end{verbatim}
 
-keeping in mind that arrays are using zero-based indeces. This is exactly what we want to do and it will work for individual nodes independently, so they will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
+keeping in mind that arrays are using zero-based indices. This is exactly what we want to do and it will work for individual nodes independently, so they will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
 
 There is a snag in using this method though. CUDA does not behave well when a negative index is referenced, which is needed for five of the directions. Tests show that CUDA simply ignores the case
 
