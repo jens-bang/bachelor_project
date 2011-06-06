@@ -345,7 +345,7 @@ where the expected outcome would be
 -1 % 10 = 9
 \end{verbatim}
 
-e.g. the last index in the array. Thus modulus cannot be used in this way. As a side note it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (TODO: cite cuda best practices here).
+e.g. the last index in the array. Thus modulus cannot be used in this way. As a side note it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (\cite{bestpracticesguide} section 5.1.1 p. 45).
 
 A better way to solve this problem relies on conditionals. This is done by simply letting the thread check if the node is on the edge of the matrix by comparing the current node's position with the maximum amount of nodes, or with zero if it is propagating in the other direction. For brevity the ternary operator is used, which has the form
 
