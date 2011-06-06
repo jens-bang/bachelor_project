@@ -122,7 +122,7 @@ Which produces the result of adding all the matrices along the first dimension, 
 >>> DENSITY = numpy.add.reduce(F, axis=2)
 \end{verbatim}
 
-[TODO: This sentence needs a rewrite]To expand a matrix with a new dimension, which is needed for the boundary calculations. Since the boundary matrix is only two dimensional it is necessary to expand upon it to be able to impose the boundary on the directional matrices. This is done by the command
+To expand a matrix by a new dimension, which is needed for the boundary calculations. Since the boundary matrix is only two dimensional it is necessary to expand upon it to be able to impose the boundary on the directional matrices. This is done by the command
 
 \begin{verbatim}
 >>> BOUND[numpy.newaxis,:,:]
@@ -200,7 +200,7 @@ Now the that the reference has been set up, it is possible to load data into the
 
 Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} (TODO: cite the pycuda manual).
 
-A very smart feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray, a, using an \textit{ndarray}, x, as a template the following command can be used
+A very clever feature about PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray, a, using an \textit{ndarray}, x, as a template the following command can be used
 
 \begin{verbatim}
 a = gpuarray.empty_like(x)
