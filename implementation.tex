@@ -325,7 +325,7 @@ As mentioned before, threads must be aware of their data's position in the overa
 
 Wrapping the matrices is a bit more complex. The thread has no concept of the matrix as is, therefore it is necessary that the thread knows what to do, if it's on the edge of the matrix and about to be propagated in a direction outside the matrix.
 
-When a thread tries to access a space which is beyond the border of the matrix, the index should wrap around to the beginning of the matrix. This is usually done by using integer division. By calculating the index modulus (\%) total number of nodes we get this wrapping behaviour. If the matrix is 10 nodes wide for example and we want to propagate the last node in an eastward direction, we would have to wrap around and assign the value in the last node to the first node in the array. What happens is if we access element 11 we get
+When a thread tries to access a space which is beyond the border of the matrix, the index should wrap around to the other side of the matrix. This is usually done by using integer division. By calculating the index modulus (\%) total number of nodes we get this wrapping behaviour. If the matrix is 10 nodes wide for example and we want to propagate the last node in an eastward direction, we would have to wrap around and assign the value in the last node to the first node in the array. What happens is if we access element 11 we get
 
 \begin{verbatim}
 10 % 10 = 0
