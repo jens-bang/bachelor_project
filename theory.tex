@@ -22,6 +22,8 @@ Since the LBM is especially well suited to simulate flows around even very compl
 
 \subsection{CPU vs. GPU}
 
+(TODO: insert figure 1-2 from cuda c programming guide)
+
 When comparing a CPU with a GPU, it is clear that different goals for processor functionality produce quite different designs. While the CPU has to be good for solving \emph{any} problem, parallel workload or not, the GPU is designed with a specific task in mind, a task with a highly parallel workload.
 
 Todays CPUs very often have more than one core, normally 2 or 4, which does let the CPU achieve a certain degree of parallelism. But because of the very often non-parallel nature of their workload, the CPU comes with a very sophisticated control logic, which is put in place to minimize the latency stemming from trying to parallelize a non-parallel workload. Todays CPUs also come with a big on-chip cache to minimize latency stemming from having to wait for the comparatively slow reads from general memory.
@@ -49,7 +51,7 @@ The general purpose GPU did however lack a platform for developers to build upon
 
 Enter CUDA. CUDA is nVidia's way of introducing general purpose GPU programming to a wider audience. CUDA utilizes the parallel nature of the GPU, allowing a low end computer to process data in a different, and some times more efficient, way.
 
-The CUDA API exposes a set of tags, which allows a programmer to easily specify what methods, in otherwise ordinary C code, should be executed on the GPU. The way CUDA makes it possible is by using a preprocessor which parses the source code and makes different files for the individual architectures. Thus the normal C code goes to whichever compiler the user chooses, and the parallel section of the code goes to a compiler specifically designed to generate PTX-code. PTX-code is essentially assembly which is not specific to any GPU. The PTX code is then translated into assembly code specifically targeted at the GPU.
+The CUDA API exposes a set of tags, which allows a programmer to easily specify what methods, in otherwise ordinary C code, should be executed on the GPU. The way CUDA makes it possible is by using a preprocessor which parses the source code and makes different files for the individual architectures. Thus the normal C code goes to whichever compiler the user chooses, and the parallel section of the code goes to a compiler specifically designed to generate PTX-code. PTX-code is essentially assembly which is not specific to any GPU. The PTX-code is then translated into assembly code specifically targeted at the GPU.
 
 This effectively separates the tedium of writing assembly code directly aimed at a specific GPU-architecture, or writing pixel shaders via graphics APIs.
 
@@ -60,12 +62,36 @@ The code to be executed on the GPU, \emph{the kernel}, launches a grid which con
 
 Blocks do not only have the role of sharing memory among threads. They also serve as a synchronization point for the threads within themselves. A special command within CUDA will make sure that all threads within a block have completed, before further execution is permitted.
 
-To support this structure, CUDA provides built-in facilities for indexing blocks and threads. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads.
+To support this structure, CUDA provides built-in facilities for indexing blocks and threads. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads. The possible layouts of the grid structure can be seen on \hpref{figure}{gridblockthread}.
 
-(TODO: make figure to show how grid and block structure can be in cuda)
+\newpage
+\insfig{./images/gridblockthread.pdf}{0.7\textwidth}{\textbf{Top:} Two dimensional block layout. \textbf{Bottom:} Three dimensional block layout. When threads increase in a block the layout is under a forced minimum, here assumed to be maximum 256 threads (inspired by \cite{cudabyexample} figure 5.2 p. 71).}{gridblockthread}
+
+
+
+\subsubsection{CUDA data model}
+
+(SIMT cuda programming guide 4.1)
+
+The process of working with CUDA consists of letting the CPU instruct the GPU what to do. In this is contained memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \hpref{figure}{cudaprocess}
 
 \insfig{./images/cudaprocess.png}{0.5\textwidth}{CUDA process model (from Wikipedia article, author: Tosaka)}{cudaprocess}
 
-\subsubsection{CUDA data model}
+CUDA exposes more than just one memory model to the programmer, each with their different purpose and performance. \hpref{Figure}{cudamem} shows the different types of memory. In \hpref{table}{cudamemtable}
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{llll}
+		\toprule
+		Name 	& Speed & Access & Scope\\
+		\midrule
+		Global 	& 200-300 clock cycles 	& Read/write & All threads + host \\
+		Texture 	& < 100 clock cycles & Read & All threads + host\\
+		Shared 	& 1-2 clock cycles & Read/write & All threads in a block\\
+		\bottomrule
+	\end{tabular}
+	\caption{A subset of the memory types the CUDA api exposes (TODO: reference drdobbs website)}
+	\label{cudamemtable}
+\end{table}
 
 \insfig{./images/cudamem.png}{0.5\textwidth}{CUDA(GPU) memory model (TODO: where did I get this from?!)}{cudamem}
