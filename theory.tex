@@ -62,14 +62,16 @@ The code to be executed on the GPU, \emph{the kernel}, launches a grid which con
 
 Blocks do not only have the role of sharing memory among threads. They also serve as a synchronization point for the threads within themselves. A special command within CUDA will make sure that all threads within a block have completed, before further execution is permitted.
 
-To support this structure, CUDA provides built-in facilities for indexing blocks and threads. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads. The possible layouts of the grid structure can be seen on \hpref{figure}{gridblockthread}.
+To support this structure, CUDA provides built-in facilities for indexing blocks and threads. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads. The possible layouts of the grid structure can be seen in \hpref{figure}{gridblockthread}.
 
 \newpage
 \insfig{./images/gridblockthread.pdf}{0.7\textwidth}{\textbf{Top:} Two dimensional block layout. \textbf{Bottom:} Three dimensional block layout. When threads increase in a block the layout is under a forced minimum, here assumed to be maximum 256 threads (inspired by \cite{cudabyexample} figure 5.2 p. 71).}{gridblockthread}
 
 
-
+\newpage
 \subsubsection{CUDA data model}
+
+
 
 (SIMT cuda programming guide 4.1)
 
