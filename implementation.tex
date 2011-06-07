@@ -333,30 +333,21 @@ When a thread tries to access a space which is beyond the border of the matrix, 
 p + b % b
 \end{verbatim}
 
-If the matrix is 10 nodes wide for example and we want to propagate the last node in an eastward direction, we would have to wrap around and assign the value in the last node to the first node in the array. What happens is if we access element 11 we get
-
-
-
+Where \texttt{b} is the position in the index and \texttt{b} is the width of the matrix. If the matrix is 10 nodes wide for example and we want to propagate the last node in an eastward direction, we would have to wrap around and assign the value in the last node, to the first node in the array. What happens is, if we access element 11 we get
 
 \begin{verbatim}
-10 % 10 = 0
+(10 + 10) % 10 = 0
 \end{verbatim}
 
 keeping in mind that arrays are using zero-based indices. This is exactly what we want to do and it will work for individual nodes independently, so they will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
 
-There is a snag in using this method though. CUDA does not behave well when a negative index is referenced, which is needed for five of the directions. Tests show that CUDA simply ignores the case
+As another example when we want to propagate westward, we would have to access element -1, i.e. wrap around to the end of the 
 
 \begin{verbatim}
--1 % 10 = -1
+(-1 + 10) % 10 = 9
 \end{verbatim}
 
-where the expected outcome would be
-
-\begin{verbatim}
--1 % 10 = 9
-\end{verbatim}
-
-e.g. the last index in the array. Thus modulus cannot be used in this way. As a side note it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (\cite{bestpracticesguide} section 5.1.1 p. 45).
+e.g. the last index in the array. Although this is a viable solution, it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (\cite{bestpracticesguide} section 5.1.1 p. 45).
 
 A better way to solve this problem relies on conditionals. This is done by simply letting the thread check if the node is on the edge of the matrix by comparing the current node's position with the maximum amount of nodes, or with zero if it is propagating in the other direction. For brevity the ternary operator is used, which has the form
 
