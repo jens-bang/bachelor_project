@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}
-The NumPy[TODO Ref to source code] and CUDA[TODO Ref to source code] implementations take origin in a Matlab script[TODO Ref to source code]. The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
+The NumPy (\hpref{listing}{lbmnumpy}) and CUDA (\hpref{listing}{lbmcuda}) implementations take origin in a Matlab script (\hpref{listing}{lbmmatlab}). The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
 
 \begin{table}[htb]
 	\centering
@@ -33,7 +33,7 @@ The NumPy[TODO Ref to source code] and CUDA[TODO Ref to source code] implementat
 	\label{matlabvars}
 \end{table}
 
-The main and most important variable in the script is the F-variable. From \hpref{table}{matlabvars} we see that F is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. Hence according to the theory (TODO: reference to theory section) this variable stores eight density directions and one stationary state. 
+The main and most important variable in the script is the F-variable. From \hpref{table}{matlabvars} we see that F is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. Hence according to the theory section this variable stores eight density directions and one stationary state. 
 
 The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounceback}.
 
@@ -52,7 +52,7 @@ On the right hand side a new matrix is created from \texttt{F}, by simply re-ind
 
 Essentially propagating the data in an eastward direction, by wrapping the end of the matrix around and shifting the rest forward, corresponding to vector c1 in \hpref{figure}{lbmdirections}. The rest of the expression says to go along all elements of the second axis, and only operate on matrix one out of nine. One thing to keep in mind when analysing Matlab code is that it uses one-based indexing, as opposed to most programming languages (e.g. Python) which uses zero-based indexing.
 
-The rest of the propagation part of the script is simply an extension of the above, with the only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question. (TODO: maybe reference theory for clarification of what directions there are?)
+The rest of the propagation part of the script is simply an extension of the above, with the only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question.
 
 \subparagraph*{Density}
 The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab} of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
@@ -63,7 +63,7 @@ On line 21 of \hpref{listing}{lbmmatlab} the variable \texttt{CI} is generated, 
 0   100   200   300   400   500   600   700
 \end{verbatim}
 
-Combined with the variable \texttt{ON}, which contains the linear index for obstacle nodes, this can be used to calculate the linear position of obstacle nodes, in all of the 1--8 matrices (TODO: think up a way to illustrate this with some math...).
+Combined with the variable \texttt{ON}, which contains the linear index for obstacle nodes, this can be used to calculate the linear position of obstacle nodes, in all of the 1--8 matrices.
 
 The indices of obstacles in matrix 1--8 is saved in the variable \texttt{TO\_REFLECT} and then used to access all positions within the \texttt{F}-variable where there exists an obstacle, bearing in mind that this is the same position per obstacle for each 1--8 matrix, only with different linear indices.
 
@@ -85,7 +85,7 @@ Here the special '.' operator is used, signifying that it is an element-by-eleme
 Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
 \subparagraph*{Bounceback}
-The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is the opposite westward direction as seen on (TODO: snazzy figure...).
+The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is in the opposite westward direction as seen on \hpref{figure}{uxuy}.
 
 
 
@@ -167,7 +167,7 @@ mult_string = mult_string % constant
 mod = SourceModule(mult_string)
 \end{verbatim}
 
-[TODO: Sentence rewrite needed]Here the \%s denotes the location for replacement and the string is inserted right after the kernel string. As usual the string is entered into the \texttt{SourceModule} and the kernel is ready to go.
+Here the \%s denotes the location for replacement of the string which is inserted right after the kernel string. As usual the string is entered into the \texttt{SourceModule} and the kernel is ready to go.
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
@@ -218,7 +218,7 @@ Hence the memory allocation and copying to memory is mostly hidden behind an abs
 a_cpu = a_gpu.get()
 \end{verbatim}
 
-This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation making it an attractive alternative. It is limited though. It is not compatible with custom element-wise operations needed in the program in question, therefore it was opted out. [TODO: From where?]
+This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation, making it an attractive alternative. It is limited though. It is not compatible with custom element-wise operations needed in the program in question, therefore it was opted out. [TODO: From where?]
 
 
 
@@ -237,7 +237,7 @@ The data layout was found, by the analysis of the Matlab script, to need to cons
 \subsubsection{NumPy}
 Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices.
 
-Wrapping is done in lines (TODO:refer to listing) and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, when assigning it back to the original matrix:
+Wrapping and shifting is done in lines 72--103 of \hpref{listing}{lbmnumpy} and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, when assigning it back to the original matrix:
 
 \begin{verbatim}
 F[1,:,0]     = T[1,:,-1]
@@ -257,9 +257,13 @@ The implementation of the PyCUDA version takes origin in the previous analysis o
 
 The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelised. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
 
-The main challenge in arranging data is that it is important that each thread is treated as a single non-dependent unit, which, on execution, knows where it is and what data it is supposed to operate on. To help, CUDA supplies some indexing constants for use in the kernel, as stipulated in the CUDA section (TODO: reference).
+The main challenge in arranging data is that it is important that each thread is treated as a single non-dependent unit, which, on execution, knows where it is and what data it is supposed to operate on. To help, CUDA supplies some indexing constants for use in the kernel, as stipulated in the CUDA section (\hpref{table}{cudaindex}).
 
-Since CUDA C does not have a construct like NumPy's \textit{ndarray}, it is necessary to linearise data access. Normally this would simply consist of assigning a maximum size of the array, and then let access to an element higher than that width wrap around, at the same time increasing the second dimension (TODO: illustrate this fact). This however is complicated by the fact that we do not traverse the array accessing each element in sequence. Instead we access the array from certain points within the CUDA block structure. This mean that each thread has it's own specific data-point in the array. Thus we need to linearise the array with the tools given to us in the CUDA programming model.
+Since CUDA C does not have a construct like NumPy's \textit{ndarray}, it is necessary to linearise data access. Normally this would simply consist of assigning a maximum width of the array, and then let access to an element higher than that width wrap around, at the same time increasing the second dimension as seen in \hpref{figure}{arraywrap}.
+
+\insfig{./images/arraywrapping.pdf}{0.5\textwidth}{A linear array wrapped to fit with the underlying data-structure (2D array)}{arraywrap}
+
+This however is complicated by the fact that we do not traverse the array accessing each element in sequence. Instead we access the array from certain points within the CUDA block structure. This mean that each thread has it's own specific data-point in the array. Thus we need to linearise the array with the tools given to us in the CUDA programming model.
 
 This is done by clever use of the block index, block dimension and thread index. Imagine we have a linear array we need to spread out over a series of CUDA blocks. The kernel has been launched with a pre-calculated block size, and the amount of blocks have been calculated to fit with the data in question. If we take a practical example and say our blocks are one-dimensional, and they as a maximum can contain 10 threads. Your array contains 35 elements, and we want to be able to index this within the CUDA-kernel. The linear index mapping from thread location in the CUDA kernel to an array index is then calculated like this
 
@@ -271,7 +275,7 @@ In \hpref{figure}{linearindex}, it can be seen how this works for two thread loc
 
 \insfig{./images/linearindex.pdf}{1.0\textwidth}{Calculating the linear index of a data point in an array for the CUDA thread to access}{linearindex}
 
-Initially the project focused on implementing the D3Q19 LBM so some work went into arranging data to fit this model. As blocks are limited as to how many threads can run within them, the main issue which must be resolved when making an algorithm parallel arises. For the D3Q19 case the main issue was to fit a three dimensional problem into a two dimensional space. A block can contain three dimensions, but this will minimize the amount of threads available to run in each dimension. Also, the third dimension will still be limited to the maximum allowable threads per block(TODO: insert a figure illustrating this limitation). The solution is to linearise the third dimension into the grid layout, where a block can have two dimensions corresponding to the simulated field's size, and then be repeated as a series of blocks in the grid corresponding to the third dimension.
+Initially the project focused on implementing the D3Q19 LBM so some work went into arranging data to fit this model. As blocks are limited as to how many threads can run within them, the main issue which must be resolved when making an algorithm parallel arises. For the D3Q19 case the main issue was to fit a three dimensional problem into a two dimensional space. A block can contain three dimensions, but this will minimize the amount of threads available to run in each dimension. Also, the third dimension will still be limited to the maximum allowable threads per block, as seen in the bottom of \hpref{figure}{gridblockthread}. The solution is to linearise the third dimension into the grid layout, where a block can have two dimensions corresponding to the simulated field's size, and then be repeated as a series of blocks in the grid corresponding to the third dimension.
 
 (TODO: insert figure of three dimensional layout)
 
@@ -317,9 +321,7 @@ prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
 \end{verbatim}
 
 
-\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 103--143 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually transfers its value to the nearest neighbours around it.
-
-(TODO: illustration of this single node propagation would be neat)
+\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 103--143 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually accepts densities of the nearest neighbours around it, as seen in \hpref{figure}{cudaprop}.
 
 As mentioned before, threads must be aware of their data's position in the overall data space, by inferring it from their position in the block/grid layout. This is already done above. What is missing is an indexing of the nearest neighbours, and the wrapping which occurs in the original code. Since we already have the x- and y-indices it is easy to get the nearest neighbours of a node, it is just a matter of adding and/or subtracting one to the x- and/or y-index, still keeping in mind that the y-index needs to be further linearised afterwards.
 
