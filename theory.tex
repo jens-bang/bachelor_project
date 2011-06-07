@@ -67,14 +67,11 @@ To support this structure, CUDA provides built-in facilities for indexing blocks
 \newpage
 \insfig{./images/gridblockthread.pdf}{0.7\textwidth}{\textbf{Top:} Two dimensional block layout. \textbf{Bottom:} Three dimensional block layout. When threads increase in a block the layout is under a forced minimum, here assumed to be maximum 256 threads (inspired by \cite{cudabyexample} figure 5.2 p. 71).}{gridblockthread}
 
+When designing CUDA-programs it is important to split the problem up into parts that map directly into this block structure, so each thread has it's own specific and simple task.
+
 
 \newpage
 \subsubsection{CUDA data model}
-
-
-
-(SIMT cuda programming guide 4.1)
-
 The process of working with CUDA consists of letting the CPU instruct the GPU what to do. In this is contained memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \hpref{figure}{cudaprocess}
 
 \insfig{./images/cudaprocess.png}{0.5\textwidth}{CUDA process model (from Wikipedia article, author: Tosaka)}{cudaprocess}
