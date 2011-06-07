@@ -21,8 +21,13 @@ Since the LBM is especially well suited to simulate flows around even very compl
 \end{itemize}
 
 \subsection{CPU vs. GPU}
-  Different goals produce different designs !   GPU assumes work load is highly parallel !   CPU must be good at everything, parallel or not
-!   CPU: minimize latency experienced by 1 thread !   big on-chip caches !   sophisticated control logic
+
+When comparing a CPU with a GPU, it is clear that different goals for processor functionality produce quite different designs. While the CPU has to be good for solving \emph{any} problem, parallel workload or not, the GPU is designed with a specific task in mind, a task with a highly parallel workload.
+
+Todays CPUs very often have more than one core, normally 2 or 4, which does let the CPU achieve a certain degree of parallelism. But because of the very often non-parallel nature of their workload, the CPU comes with a very sophisticated control logic, which is put in place to minimize the latency stemming from trying to parallelize a non-parallel workload. Todays CPUs also come with a big on-chip cache to minimize latency stemming from having to wait for the comparatively slow reads from general memory.
+
+
+
 !   GPU: maximize throughput of all threads
 !  
 !   !  
