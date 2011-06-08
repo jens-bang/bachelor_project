@@ -1,7 +1,7 @@
 \section{Implementation (\textit{Jacob Salomonsen})}
 
 
-\subsection{Matlab implementation analysis}
+\subsection{Matlab implementation analysis}\label{sec:matlabimplementation}
 The NumPy (\hpref{listing}{lbmnumpy}) and CUDA (\hpref{listing}{lbmcuda}) implementations take origin in a Matlab script (\hpref{listing}{lbmmatlab}). The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \hpref{table}{matlabvars}
 
 \begin{table}[htb]
