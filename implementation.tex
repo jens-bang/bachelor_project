@@ -35,7 +35,7 @@ The NumPy (\hpref{listing}{lbmnumpy}) and CUDA (\hpref{listing}{lbmcuda}) implem
 
 The main and most important variable in the script is the \texttt{F}-variable. From \hpref{table}{matlabvars} we see that \texttt{F} is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. Hence according to the theory section this variable stores eight density directions and one stationary state. 
 
-The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounceback}.
+The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounce-back}.
 
 \subparagraph{Propagation} 
 Propagation is where node densities are spread outward to affect neighbouring nodes. In the Matlab code this happens in line 44-55 in \hpref{listing}{lbmmatlab}. Lets examine line 45 and see how this is done
@@ -57,7 +57,7 @@ The rest of the propagation part of the script is simply an extension of the abo
 \subparagraph*{Density}
 The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab} of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
 
-On line 21 of \hpref{listing}{lbmmatlab} the variable \texttt{CI} is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce back). This means that if the simulated field is $10\times10$ the indices would be
+On line 21 of \hpref{listing}{lbmmatlab} the variable \texttt{CI} is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce-back). This means that if the simulated field is $10\times10$ the indices would be
 
 \begin{verbatim}
 0   100   200   300   400   500   600   700
@@ -84,8 +84,8 @@ Here the special '.' operator is used, signifying that it is an element-by-eleme
 
 Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
-\subparagraph*{Bounceback}
-The final part bounce back is done just like at our first encounter with bounce back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is in the opposite westward direction as seen on \hpref{figure}{uxuy}.
+\subparagraph*{Bounce-back}
+The final part bounce-back is done just like at our first encounter with bounce-back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is in the opposite westward direction as seen on \hpref{figure}{uxuy}.
 
 
 
@@ -254,7 +254,7 @@ The first assignment accesses a negative index in the temporary matrix, which in
 
 \insfig{./images/numpywrap.png}{0.7\textwidth}{Wrapping and shifting mechanism in one direction for NumPy}{numpywrap}
 
-The boundary bounce back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounce back section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+The boundary bounce-back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounce-back section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
 
 
 
@@ -386,7 +386,7 @@ Here the current node accepts density from the node in the calculated position, 
 \insfig{./images/cudaprop.pdf}{0.4\textwidth}{A single node accepting densities from surrounding neighbours}{cudaprop}
 
 \paragraph{Density kernel}
-The density kernel is found on lines 149--209 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy versions. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
+The density kernel is found on lines 149--209 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce-back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy versions. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
 The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel '\%s' denotes the place to insert and on line 202 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
@@ -397,8 +397,8 @@ The equilibrium kernel is implemented on lines 217--287 in \hpref{listing}{lbmcu
 As with the density kernel, constants are supplied to the kernel by string replacement.
 
 
-\paragraph{Bounceback kernel}
-The bounce back kernel works in the same way as the density kernel. It is listed in \hpref{listing}{lbmcuda} lines 298-321. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
+\paragraph{Bounce-back kernel}
+The bounce-back kernel works in the same way as the density kernel. It is listed in \hpref{listing}{lbmcuda} lines 298-321. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
 
 
 
@@ -445,7 +445,7 @@ The reason for this was a mixture of miscalculations of the current thread's ind
 
 \insfig{./images/blockbug.pdf}{0.4\textwidth}{The allocated memory is smaller than the designated block size}{blockbug}
 
-Facing the problem of the miscalculations in the thread's index and size of the simulated field revealed that a mistake had been made. The size of the field is not simply taking the amount of blocks times the dimension of a block, since this only gives the total grid-size, not the simulated field which can be smaller. The indexing calculations where done like so
+Facing the problem of the miscalculations in the thread's index and size of the simulated field revealed that a mistake had been made. The size of the simulated field is not simply taking the amount of blocks times the dimension of a block, since this gives the total grid-size, which can be larger than the simulated field. The indexing calculations where done like so
 
 \begin{verbatim}
 int x     = threadIdx.x + blockIdx.x * blockDim.x;
@@ -456,4 +456,4 @@ int cur 	  = x + y * nx;
 int size  = nx * ny;
 \end{verbatim}
 
-The solution to this problem was not hard to find though. Instead of letting the threads calculate the simulated field, which anyway is impossible to infer from the grid-structure, the simulated field's dimensions were fed to the kernels as constants.
+Both the \texttt{nx} and \texttt{ny} as well as the \texttt{size} was calculated incorrectly this way. The solution to this problem was not hard to find though. Instead of letting the threads calculate the simulated field, which anyway is impossible to infer from the grid-structure, the simulated field's dimensions were fed to the kernels as constants.
