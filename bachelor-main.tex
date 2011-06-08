@@ -66,14 +66,15 @@ University of Copenhagen
 
 %%%--- Tekst ---%%%
 
-\section*{Abstract}
+\section*{Abstract (\textit{Jens Bang})}
 
+The Lattice Boltzmann Model is widely used for various simulations of movement of liquids and gasses. This paper will show that it is possible to achieve even high gains in execution speed by combining ease of implementation and parallel processing, by implementing the Lattice Boltzmann Model in Python, using the PyCuda extension to access the highly parallel CUDA architecture. We will compare run times between the PyCuda version and a version utilizing the more conventional, and not parallel, NumPy extension, to show the speed increases.
 
 \newpage
 \tableofcontents
 \newpage
 
-\section{Introduction}
+\section{Introduction (\textit{Jens Bang})}
 
 This paper is a bachelor project written by bachelor degree students at The Computer Science Department of The University of Copenhagen. As such the intended readers are anyone with an interest in the subject matter, as well as a basic understanding of computer science and programming in Python. The object of the paper is to examine a possible gain in execution speed, when using CUDA to implement the Lattice Boltzmann Model. It is not the object of the paper to fully explain the Lattice Boltzmann Model, so while a reasonable understanding of physics is preferrable, it is not necessary.
 
@@ -85,6 +86,12 @@ Since this would be a comparison of normal C/C++ code run times to normal Python
 
 The two Python implementations of the Lattice Boltzmann Model are both based on a MatLab implementation of the model, which will be introduced in the Implementation section of this paper. [TODO Is it possible to automatically insert the correct section title?]
 
+Reference tests:
+
+Cuda by example\cite{cudabyexample}
+
+PyCUDA \cite{kloeckner_pycuda_2009}
+
 \newpage
 
 \section{Abbreviations}
@@ -92,9 +99,15 @@ The two Python implementations of the Lattice Boltzmann Model are both based on 
 \begin{figure}[htb]
 \centering
 	\begin{tabular}{lcl}
-		LBM & = & Lattice Boltzmann Method\\
+	    CPU & = & Central processing unit
+	    CUDA & = & Compute Unified Device Architecture
 		D2Q9 & = & Two dimensional, 9 directional vectors per lattice-point\\
 		D3Q19 & = & Three dimensional, 19 directional vectors per lattice-point
+		GPU & = & Graphics processing unit
+		LBM & = & Lattice Boltzmann Method\\
+		PTX & = & Parallel Thread Execution
+		SIMD & = & Single instruction, multiple data
+		SIMT & = & Single Instruction Multiple Threads
 	\end{tabular}
 \end{figure}
 
@@ -107,7 +120,7 @@ The two Python implementations of the Lattice Boltzmann Model are both based on 
 \newpage
 \input{testing.tex}
 
-
+\newpage
 \input{results.tex}
 
 \section{Conclusion}
