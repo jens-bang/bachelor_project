@@ -153,21 +153,27 @@ This is just ordinary CUDA C, embedded in the Python code. To get the handle for
 multiply_them = mod.get_function("multiply_them")
 \end{verbatim}
 
-Now \texttt{multiply\_them} can be called like any normal Python function and the kernel will run with the arguments supplied in the call. When passing parameters as constant, it is easy to string replace them into the kernel before it gets turned into a CUDA kernel. This is done like so
+Now \texttt{multiply\_them} can be called like any normal Python function and the kernel will run with the arguments supplied in the call. When passing parameters as constant, it is easy to string replace them into the kernel before it gets turned into a CUDA kernel. An example of this is shown in \hpref{listing}{minikernel}
 
-\begin{verbatim}
+\lstset{language=Python, caption={An example of a kernel implemented in PyCUDA, here showing how constants are supplied on compile time},label=minikernel}
+\begin{lstlisting}
+constant = 10
+
 mult_string = """
-__global__ void multiply_them(float *dest, float *a, float *b)
-{
-  const int i = threadIdx.x;
-  dest[i] = a[i] * b[i] * %s;
+__global__ void multiply_them(float *dest, float *a, float *b) {
+    const int i = threadIdx.x;
+    dest[i] = a[i] * b[i] * %(CONSTANT)s;
 }
 """
-mult_string = mult_string % constant
-mod = SourceModule(mult_string)
-\end{verbatim}
 
-Here the \%s denotes the location for replacement of the string which is inserted right after the kernel string. As usual the string is entered into the \texttt{SourceModule} and the kernel is ready to go.
+mult_string = mult_string % {
+    'CONSTANT': constant
+}
+
+mod = SourceModule(mult_string)
+\end{lstlisting}
+
+Here the \texttt{\%(CONSTANT)s} is the label for the location for replacement of the string with the defined constant \texttt{constant} containing the value 10. This is done right after the kernel string by assigning a value to the label \texttt{'CONSTANT'}. As usual the string is sent as argument to the \texttt{SourceModule} and the kernel is ready to go.
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
@@ -279,26 +285,26 @@ Initially the project focused on implementing the D3Q19 LBM so some work went in
 
 (TODO: insert figure of three dimensional layout)
 
-This however raises another problem. What if the simulated field is larger than the allowable size of the block? When the simulated field crosses the maximum block size, four blocks is needed to support this increase (assuming the simulated field is always quadratic). Since the grid can only be two dimensional there is a difficult problem in linearising the blocks from three to two dimensions.
+This however raises another problem. What if the simulated field is larger than the allowable size of the block? When the simulated field crosses the maximum block size, four blocks is needed to support this increase (assuming the simulated field is always quadratic). Since the grid can only be two dimensional there exists a difficult problem in linearising the blocks from three to two dimensions.
 
 The two dimensional case D2Q9 is however much simpler. Here it is just a matter of extending the one dimensional case illustrated above
 
 \begin{verbatim}
 int x     = threadIdx.x + blockIdx.x * blockDim.x;
 int y     = threadIdx.y + blockIdx.y * blockDim.y;
-int nx    = blockDim.x * gridDim.x;
-int cur 	  = x + y * nx;
+int nx    = %(WIDTH)s;
+int cur   = x + y * nx;
 \end{verbatim}
 
-This successfully emulates a two dimensional array by using the block and thread index in the y-direction as well. The trick is that when the y-coordinate increases, the index has to follow the principle of the linearisation. Here when a y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (TODO: illustrate). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index. But we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by \textit{nx}, which is the horizontal dimension of the simulated field (being a block's size times the amount of blocks) for every y-coordinate.
+This successfully emulates a two dimensional array by using the block and thread index in the y-direction as well. The trick is that when the y-coordinate increases, the index has to follow the principle of the linearisation. Here when the y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (illustrated in \hpref{figure}{arraywrap}). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index, but we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by \textit{nx}, which is the size of the x-axis of the simulated field, for every y-coordinate.
 
 We are still missing one thing before we are ready with our indexing-scheme. We need to access nine separate matrices also by linearising their starting position, much like in the original Matlab-script's variable \texttt{CI}. As described in the data-structure section, index 0 has been chosen to contain the stationary matrix instead of 9 as in the Matlab-script. In this way all directional matrices can keep numbering consistently with the Matlab-script since Matlab uses one-based indexing and Python uses zero-based indexing.
 
 To get the starting position of the other matrices, it is simply a matter of finding the size of the matrix, and adding to the index already found above
 
 \begin{verbatim}
-int nx    = blockDim.x * gridDim.x;
-int ny    = blockDim.y * gridDim.y;
+int nx    = %(WIDTH)s;
+int ny    = %(HEIGHT)s;
 int size  = nx * ny;
 \end{verbatim}
 
@@ -319,6 +325,14 @@ Here it is assumed that a block can maximally contain 256 threads ($16\times16$ 
 \begin{verbatim}
 prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
 \end{verbatim}
+
+In case the simulated field is not a multiple of the block size (in this case $16\times16$), a conditional is inserted before each kernel's calculations. This is there to stop threads from running when there is no data for them to process. The condition is formulated below
+
+\begin{verbatim}
+if(x < nx && y < ny)
+\end{verbatim}
+
+Here \texttt{x} and \texttt{y} is the current threads location in the entire grid, while \texttt{nx} and \texttt{ny} is the real size of the simulated field. 
 
 
 \paragraph{Propagation kernel} The density kernel implementation can be seen at lines 103--143 of \hpref{listing}{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually accepts densities of the nearest neighbours around it, as seen in \hpref{figure}{cudaprop}.
@@ -372,19 +386,19 @@ Here the current node accepts density from the node in the calculated position, 
 \insfig{./images/cudaprop.pdf}{0.4\textwidth}{A single node accepting densities from surrounding neighbours}{cudaprop}
 
 \paragraph{Density kernel}
-The density kernel is found on lines 143--202 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy versions. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
+The density kernel is found on lines 149--209 in \hpref{listing}{lbmcuda}. In the Matlab version the bounce back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy versions. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
 The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the same test case can be set up as in the NumPy version, called the lid driven cavity. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel '\%s' denotes the place to insert and on line 202 of \hpref{listing}{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
 
 \paragraph{Equilibrium kernel}
-The equilibrium kernel is implemented on lines 204--260 in \hpref{listing}{lbmcuda}. It is not different from the Matlab and PyCUDA version, except that it is now working on each element individually. It is merely implemented in CUDA to save memory traffic to and from the GPU. In this way all the variables and calculations can reside on the GPU, saving a large overhead in copying variables back and forth.
+The equilibrium kernel is implemented on lines 217--287 in \hpref{listing}{lbmcuda}. It is not different from the Matlab and PyCUDA version, except that it is now working on each element individually. It is merely implemented in CUDA to save memory traffic to and from the GPU. In this way all the variables and calculations can reside on the GPU, saving a large overhead in copying variables back and forth.
 
 As with the density kernel, constants are supplied to the kernel by string replacement.
 
 
 \paragraph{Bounceback kernel}
-The bounce back kernel works in the same way as the density kernel. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
+The bounce back kernel works in the same way as the density kernel. It is listed in \hpref{listing}{lbmcuda} lines 298-321. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
 
 
 
@@ -425,10 +439,21 @@ Utilizing shared memory in each block would also provide a performance gain, but
 
 
 \subsection{Issues/bugs}
-There is an issue in the kernel launch. The problem arises when trying to launch a kernel larger than the maximum block size (currently set to $16\times16$), which is not a multiple of $16$. If the simulated field is chosen to say for example $25\times25$, the program will throw an error.
+An earlier version of the PyCUDA implementation exhibited a bug when running the kernel with a simulated field larger than the block size ($16\times16$) and not a multiple of 16 in each dimension. If the simulated field is chosen to say for example $25\times25$, the program would throw an error.
 
-The reason why this happens is that the kernel is launched with a fixed block size, and it is the same along the whole grid. Therefore when the kernel is launched, and the allocated memory does not fit with the block size, e.g. the block size is larger than the memory, the program will try to access memory which is not allocated. The real reason for this is that the threads are designed to run on a full block size regardless of the underlying data. The situation is illustrated in figure \hpref{figure}{blockbug}
+The reason for this was a mixture of miscalculations of the current thread's index, calculation of the size of the simulated field, and lacking the ability for threads to disable when there is no data for them to process. The latter is illustrated in \hpref{figure}{blockbug}. The kernels are always launched with the same block-size, and therefore will not fit with simulated fields of which the dimensions are a multiple of the block size's dimension. If the threads are not instructed not to do so, they will try to process data, regardless if there is data or not. To solve this problem a condition was inserted to check if the threads index (x and y) is within the simulated field, and therefore has data to process. 
 
 \insfig{./images/blockbug.pdf}{0.4\textwidth}{The allocated memory is smaller than the designated block size}{blockbug}
 
-The way to remedy this would be to implement a check if the threads in a block are exceeding the data range, and thus have to do a no operation instead of trying to access data which is not there.
+Facing the problem of the miscalculations in the thread's index and size of the simulated field revealed that a mistake had been made. The size of the field is not simply taking the amount of blocks times the dimension of a block, since this only gives the total grid-size, not the simulated field which can be smaller. The indexing calculations where done like so
+
+\begin{verbatim}
+int x     = threadIdx.x + blockIdx.x * blockDim.x;
+int y     = threadIdx.y + blockIdx.y * blockDim.y;
+int nx    = blockDim.x * gridDim.x;
+int ny    = blockDim.y * gridDim.y;
+int cur 	  = x + y * nx;
+int size  = nx * ny;
+\end{verbatim}
+
+The solution to this problem was not hard to find though. Instead of letting the threads calculate the simulated field, which anyway is impossible to infer from the grid-structure, the simulated field's dimensions were fed to the kernels as constants.

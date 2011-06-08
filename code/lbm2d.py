@@ -7,9 +7,9 @@ Created on May 23, 2011
 import numpy as np
 
 ' Simulation attributes '
-nx = 16
-ny = 16
-it = 150
+nx = 23
+ny = 23
+it = 900
 
 ' Constants '
 omega   = 1.0
@@ -32,7 +32,7 @@ BOUND       = np.copy(DENSITY)
 BOUNDi      = np.ones(BOUND.shape, dtype=float)
 
 ' Create the scenery '
-scenery = 3
+scenery = 0
 
 # Tunnel
 if scenery == 0:
@@ -152,10 +152,14 @@ def loop(it):
         FEQ[7,:,:]=t2*DENSITY*(1-UY/c_squ+0.5*(UY/c_squ)**2-U_SQU/(2*c_squ))
         
         # next-nearest neighbours
-        FEQ[2,:,:]=t3*DENSITY*(1+U_C2/c_squ+0.5*(U_C2/c_squ)**2-U_SQU/(2*c_squ))
-        FEQ[4,:,:]=t3*DENSITY*(1+U_C4/c_squ+0.5*(U_C4/c_squ)**2-U_SQU/(2*c_squ))
-        FEQ[6,:,:]=t3*DENSITY*(1+U_C6/c_squ+0.5*(U_C6/c_squ)**2-U_SQU/(2*c_squ))
-        FEQ[8,:,:]=t3*DENSITY*(1+U_C8/c_squ+0.5*(U_C8/c_squ)**2-U_SQU/(2*c_squ))
+        FEQ[2,:,:]=t3*DENSITY*(1+U_C2/c_squ+0.5*(U_C2/c_squ)**2-
+                                                               U_SQU/(2*c_squ))
+        FEQ[4,:,:]=t3*DENSITY*(1+U_C4/c_squ+0.5*(U_C4/c_squ)**2-
+                                                               U_SQU/(2*c_squ))
+        FEQ[6,:,:]=t3*DENSITY*(1+U_C6/c_squ+0.5*(U_C6/c_squ)**2-
+                                                               U_SQU/(2*c_squ))
+        FEQ[8,:,:]=t3*DENSITY*(1+U_C8/c_squ+0.5*(U_C8/c_squ)**2-
+                                                               U_SQU/(2*c_squ))
         
         F=omega*FEQ+(1.0-omega)*F
         
@@ -165,7 +169,8 @@ def loop(it):
         
         ts += 1
         
-loop(900)
+' Run the loop '
+loop(it)
 
 import matplotlib.pyplot as plt
 UY *= -1
