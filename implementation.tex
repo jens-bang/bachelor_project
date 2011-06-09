@@ -425,7 +425,7 @@ To test for the correctness of the two implementations in NumPy and PyCUDA, a te
 \label{correctness}
 \end{figure}
 
-A visual inspection of \autoref{correctness} reveals that the implementations are correct and produce the expected results according to the original Matlab implementation. There is however a small inaccuracy in the PyCUDA version on \autoref{correctness:c}, some of the velocities don't have exactly same length and direction as the NumPy version in \autoref{correctness:b}. This can be attributed to floating point inaccuracy \cite[p.~51]{bestpracticesguide}.
+A visual inspection of \autoref{correctness} reveals that the implementations are correct and produce the expected results according to the original Matlab implementation. There is however a small inaccuracy in the PyCUDA version on \autoref{correctness:c}, some of the velocities don't have exactly same direction as the NumPy version in \autoref{correctness:b}. This can be attributed to floating point inaccuracy \cite[p.~51]{bestpracticesguide}.
 
 
 
