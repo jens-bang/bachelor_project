@@ -241,7 +241,7 @@ The data layout was found, by the analysis of the Matlab script, to need to cons
 
 
 \subsubsection{NumPy}
-Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices. This code was made with inspiration from \cite{madsbklbm}.
+Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices. This code was made with inspiration from \cite{madsbklbm}. The resulting code can be viewed in \autoref{lbmnumpy}
 
 Wrapping and shifting is done in lines 72--103 of \autoref{lbmnumpy} and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, when assigning it back to the original matrix:
 
@@ -259,7 +259,7 @@ The boundary bounce-back calculations are done by using two matrices, one normal
 
 
 \subsubsection{PyCUDA}
-The implementation of the PyCUDA version takes origin in the previous analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm.
+The implementation of the PyCUDA version takes origin in the analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm. The resulting code can be viewed in \autoref{lbmcuda}.
 
 The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelised. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
 
