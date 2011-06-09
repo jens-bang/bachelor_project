@@ -25,8 +25,6 @@ When comparing a CPU with a GPU, it is clear that different goals for processor 
 
 \insfig{./images/cpu-vs-gpu.png}{0.7\textwidth}{Visualization of the amount of a CPU is devoted to data processing as compared to a GPU (inspired by \cite{bestpracticesguide} figure 1-2 p. 3).}{cpuvsgpu}
 
-(TODO: Need to create our own graphic)
-
 Todays CPUs very often have more than one core, normally 2 or 4, which does let the CPU achieve a certain degree of parallelism. But because of the very often non-parallel nature of their workload, the CPU comes with a very sophisticated control logic, which is put in place to minimize the latency stemming from trying to parallelize a non-parallel workload. Todays CPUs also come with a big on-chip cache to minimize latency stemming from having to wait for the comparatively slow reads from general memory. All this results in a large part of the CPU being used for other tasks than the actual dat aprocessing.
 
 Todays GPUs take advantage of the fact that graphics processing tasks are highly parallel, this is also known as data level parallelism, because the parallelism is built in on the data level so to speak. This fact helps the GPU to cut down on the control logic as compared to CPUs, since many of the non-parallel task problems seen in CPUs are simply not present in GPU tasks, and so the control logic to handle these problems are not needed in the GPU. This results in a maximized throughput of all processes in the GPU, since more of the GPU's computing power can be used for actual data processing.

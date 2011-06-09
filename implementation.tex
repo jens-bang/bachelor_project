@@ -74,7 +74,7 @@ The \texttt{UX} and \texttt{UY} variables are created by summing only the entrie
 \insfig{./images/uxuy.pdf}{0.7\textwidth}{The \texttt{UX} and \texttt{UY} variables are created}{uxuy}
 
 \subparagraph*{Equilibrium}
-The equilibrium part that runs from 63--88 [TODO: Get this line number ref in line with how the others are written] increases the inlet pressure as to create a constant flow in the simulation. This part also uses the result from the density part to calculate some constants used in calculation of the equilibrium. The equilibrium is calculated for each density matrix 1--9, the first one being the stationary state as seen below.
+The equilibrium part that runs from 63--88 of \hpref{listing}{lbmmatlab} increases the inlet pressure as to create a constant flow in the simulation. This part also uses the result from the density part to calculate some constants used in calculation of the equilibrium. The equilibrium is calculated for each density matrix 1--9, the first one being the stationary state as seen below.
 
 \begin{verbatim}
 FEQ(:,:,9)=t1*DENSITY.*(1-U_SQU/(2*c_squ));
@@ -85,14 +85,14 @@ Here the special '.' operator is used, signifying that it is an element-by-eleme
 Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
 \subparagraph*{Bounce-back}
-The final part bounce-back is done just like at our first encounter with bounce-back, in the density part where it is saved, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, with the difference for example being that density matrix 1 has been swapped with density matrix 5, which is in the opposite westward direction compared to the original direction. Taking this example, looking at \hpref{figure}{uxuy}, F1 is the original direction and the inverse direction is F5. This pattern of inverting is applied for all density matrices, effectively sending density in the opposite direction of the obstacle.
+The final part bounce-back is done just like at our first encounter with bounce-back, in the density part where it is saved, only this time the directions have been shifted. The operation is on line 91 of \hpref{listing}{lbmmatlab} The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, with the difference for example being that density matrix 1 has been swapped with density matrix 5, which is in the opposite westward direction compared to the original direction. Taking this example, looking at \hpref{figure}{uxuy}, F1 is the original direction and the inverse direction is F5. This pattern of inverting is applied for all density matrices, effectively sending density in the opposite direction of the obstacle.
 
 
 
 \subsection{NumPy}
 NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it will only run on one CPU, even in a multi-core processor (TODO: add reference for this). This severely limits the potential for scientific computing using this package, but the usefulness of this package is that it is easy to prototype calculations.
 
-At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which after creation cannot change in size. If an attempt to change the size of an existing array is made, the existing array is simply overwritten. To allocate an array fitting the data layout discussed in (TODO: reference to either the current section or an earlier section?), the following command is used:
+At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which after creation cannot change in size. If an attempt to change the size of an existing array is made, the existing array is simply overwritten. To allocate an array fitting the data layout (discussed in part in \autoref{sec:matlabimplementation} and \autoref{sec:datalayout}), the following command is used:
 
 \begin{verbatim}
 >>> F = numpy.zeros((9,nx,ny), dtype=float)
@@ -224,7 +224,7 @@ Hence the memory allocation and copying to memory is mostly hidden behind an abs
 a_cpu = a_gpu.get()
 \end{verbatim}
 
-This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation, making it an attractive alternative. It is limited though. It is not compatible with custom element-wise operations needed in the program in question, therefore it was opted out. [TODO: From where?]
+This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. What is special about the GPUArray is that it can perform basic linear algebra on the GPU without creating kernels for this. This adds to the convenience of easy memory allocation, making it an attractive alternative. It is limited though. It is not compatible with custom element-wise operations needed in the program in question, therefore it was opted out from the PyCUDA implementation.
 
 
 
@@ -235,7 +235,7 @@ To be able to perform a proper comparison between the CPU-- and GPU--version of 
 
 
 
-\subsubsection{Data layout}
+\subsubsection{Data layout}\label{sec:datalayout}
 The data layout was found, by the analysis of the Matlab script, to need to consist of a two dimensional matrix, repeated nine times for the D2Q9 LBM. The D2Q9 LBM maintains densities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $nx \cdot ny$ then, to be able to contain this, the data structure must be able to contain $9 \cdot nx \cdot ny$. For both the NumPy and PyCUDA version the matrix index has been chosen as the first dimension instead of the third as it is in the Matlab script. This is because it is easier to handle upon linearisation and will fit the usage of some commands like \texttt{add.reduce}.
 
 
@@ -254,7 +254,7 @@ The first assignment accesses a negative index in the temporary matrix, which in
 
 \insfig{./images/numpywrap.png}{0.7\textwidth}{Wrapping and shifting mechanism in one direction for NumPy}{numpywrap}
 
-The boundary bounce-back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounce-back section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the (TODO: refer to code analysis section).
+The boundary bounce-back calculations are done by using two matrices, one normal and one inverted matrix, the latter containing zeros for the locations of boundaries and ones for the locations of free space. The normal matrix is used for selecting only the nodes in the boundary so as to save their propagational state for later use in the bounce-back section. The inverted boundary matrix is then multiplied onto the eight directional matrices which results in an erasure of all other boundaries than the boundary nodes' stationary matrix. Using the saved state from the boundary nodes, velocities are then transferred back in an inverted pattern, as described in the \autoref{sec:matlabimplementation}.
 
 
 
@@ -308,7 +308,7 @@ int ny    = %(HEIGHT)s;
 int size  = nx * ny;
 \end{verbatim}
 
-So when wanting to access the first matrix $1 \times \mathrm{\texttt{size}}$ is added to the index \texttt{cur}, the second matrix $2 \times \mathrm{\texttt{size}}$, and so on. Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in the section (TODO: section reference) will be used for all kernels.
+So when wanting to access the first matrix $1 \times \mathrm{\texttt{size}}$ is added to the index \texttt{cur}, the second matrix $2 \times \mathrm{\texttt{size}}$, and so on. Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in \autoref{sec:datalayout} will be used for all kernels.
 
 When starting a kernel in CUDA, it needs to know the dimension of the blocks and how many blocks to launch in the grid. PyCUDA is of course no exception. The amount of blocks to launch is calculated after this simple formula
 
