@@ -129,10 +129,7 @@ We started by writing a Python implementation of the supplied Matlab script, usi
 
 As can be seen from \autoref{results} the execution time for the NumPy version increases exponentially, and very quickly becomes unmanageable. The execution time for the PyCuda version on the other hand, seems to increase at an almost linear pace within the problem sizes we tested. But closer scrutiny of the graph shows that the PyCuda graph also increases exponentially, although at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
 
-
-
-* What could have been done differently?
-* Summarize all that have come before
+We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCuda.
 
 \subsection{Where to go from here?}
 
@@ -147,6 +144,10 @@ There are two obvious ways to go from here:
 \input{appendix.tex}
 
 \newpage
+\section{Bibliography}
+
+
+
 \bibliographystyle{plain}
 \bibliography{library}
 
