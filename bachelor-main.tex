@@ -123,11 +123,11 @@ The two Python implementations of the Lattice Boltzmann Model are both based on 
 
 The revised goals of this paper was to show the increase in execution speed, when switching a Python implementation of the Lattice Boltzmann Model from NumPy to PyCuda. While we realize that comparing the execution speed of a NumPy, which always only runs on one core, and PyCuda, which is higly parallel in nature, running on multiple cores, scientifically speaking is like comparing apples and oranges, we wanted to show the gain in a real-life setting, and so we feel that the comparison is valid.
 
-As outlined in 'Using the LBM' [TODO Sec no ref] the Lattice Boltzmann Model is widely used in many different circumstances, to model a large variety of things. This is why we feel it is important to show the speed increase, when switching from NumPy to PyCuda, because that is the benfit any programmer will see, when implementing the same switch from NumPy to PyCuda.
+As outlined in \autoref{usingthelbm} the Lattice Boltzmann Model is widely used in many different circumstances, to model a large variety of things. This is why we feel it is important to show the speed increase, when switching from NumPy to PyCuda, because that is the benfit any programmer will see, when implementing the same switch from NumPy to PyCuda.
 
 We started by writing a Python implementation of the supplied Matlab script, using NumPy. When we were certain of the correctness of this implementation, we wrote the PyCuda version of the Python script, and tested the correctness of this new implementation. Then we performed time studies to see what kind, if any, of speed increase we would get. As expected the speed increase is quite significant, especially with larger problem spaces.
 
-As can be seen from the results graph [TODO ref fig no] the execution time for the NumPy version increases exponentially, and very quickly becomes unmanageable. The execution time for the PyCuda version on the other hand, seems to increase at an almost linear pace within the problem sizes we tested. But closer scrutiny of the graph shows that the PyCuda graph also increases exponentially, although at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
+As can be seen from \autoref{results} the execution time for the NumPy version increases exponentially, and very quickly becomes unmanageable. The execution time for the PyCuda version on the other hand, seems to increase at an almost linear pace within the problem sizes we tested. But closer scrutiny of the graph shows that the PyCuda graph also increases exponentially, although at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
 
 We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCuda.
 
@@ -136,7 +136,7 @@ We have clearly done what we set out to do, which was to show a speed increase w
 There are two obvious ways to go from here:
 
 \begin{enumerate}
-\item As mentioned in the Testing section [TODO ref sec no] the PyCuda version is unoptimized, and it could be very interesting to see what kind of speed gains there is to be found by optimizing the code.
+\item As mentioned in \autoref{sec:testing} the PyCuda version is unoptimized, and it could be very interesting to see what kind of speed gains there is to be found by optimizing the code.
 \item Another intereresting angle would be to examine if OpenCL is comparable to CUDA, or if it delivers even greater speed increases.
 \end{enumerate}
 
