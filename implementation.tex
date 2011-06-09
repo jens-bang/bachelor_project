@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}\label{sec:matlabimplementation}
-The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take origin in a Matlab script (\autoref{lbmmatlab}) (from \cite{haslam}). The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \autoref{matlabvars}
+The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take origin in a Matlab script (\autoref{lbmmatlab}) (from \cite{haslam}). The implementation has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables' purposes were. The result can be seen in \autoref{matlabvars}
 
 \begin{table}[htb]
 	\centering
@@ -12,8 +12,7 @@ The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take
 		\midrule
 		\texttt{F} 				& $nx\times ny\times 9$ (double)	& eight directional matrices and one stationary state matrix\\
 		\texttt{FEQ} 			& $nx\times ny\times 9$ (double)	& equilibrium state of the nine matrices\\
-
-		\texttt{BOUND} 			& $nx\times ny$ (binary) 		& boundary defined by 1's ($b$)\\
+		\texttt{BOUND} 			& $nx\times ny$ (binary) 		& boundary defined by 1s ($b$)\\
 		\texttt{CI}				& $8\times 1$ (integer) 			& linear index of directional matrices\\
 		\texttt{ON}				& $b\times 1$ (integer)			& linear index of obstacle nodes\\
 		\texttt{TO\_REFLECT}		& $b\times 8$ (integer)			& linear index of nodes to save to BOUNCEBACK over all nine matrices\\
@@ -33,7 +32,7 @@ The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take
 	\label{matlabvars}
 \end{table}
 
-The main and most important variable in the script is the \texttt{F}-variable. From \autoref{matlabvars} we see that \texttt{F} is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. Hence according to the theory section this variable stores eight density directions and one stationary state. 
+The main and most important variable in the script is the \texttt{F}-variable. From \autoref{matlabvars} we see that \texttt{F} is a $nx\times ny\times 9$ matrix. This means that it has the size of the simulated field, and nine states of the the simulated fields. In thread with left of \autoref{lbmdirections}, this variable stores eight directional states and one stationary state. 
 
 The secondary result of the variable analysis was a clearer understanding of the procedures taking place upon running the Matlab script. The script can be divided into four separate parts: \textbf{Propagation}, \textbf{Density}, \textbf{Equilibrium}, \textbf{Bounce-back}.
 
@@ -85,12 +84,12 @@ Here the special '.' operator is used, signifying that it is an element-by-eleme
 Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
 \subparagraph*{Bounce-back}
-The final part bounce-back is done just like at our first encounter with bounce-back, in the density part where it is saved, only this time the directions have been shifted. The operation is on line 91 of \autoref{lbmmatlab} The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, with the difference for example being that density matrix 1 has been swapped with density matrix 5, which is in the opposite westward direction compared to the original direction. Taking this example, looking at \autoref{uxuy}, F1 is the original direction and the inverse direction is F5. This pattern of inverting is applied for all density matrices, effectively sending density in the opposite direction of the obstacle.
+The final part bounce-back is done just like at our first encounter with bounce-back, in the density part where it is saved, only this time the directions have been inverted. The operation is on line 91 of \autoref{lbmmatlab}. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, with the difference, for example, being that density matrix 1 has been swapped with density matrix 5, which is in the opposite westward direction compared to the original direction. Taking this example, looking at \autoref{uxuy}, F1 is the original direction and the inverse direction is F5. This pattern of inverting is applied for all density matrices, effectively sending density in the opposite direction of the obstacle.
 
 
 
 \subsection{NumPy}
-NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM. NumPy has the disadvantage that it is limited in performance. It does not natively support distributed architectures \cite{distnumpy} which severely limits the potential for scientific computing using this package. Despite this the usefulness of this package is that it is easy to do prototype implementations.
+NumPy is a scientific computing package for Python, which allows for multidimensional arrays, and routines for fast operations on these arrays. NumPy was used in implementing the CPU-version of the D2Q9-LBM, seen in \autoref{lbmnumpy}. NumPy has the disadvantage that it is limited in performance. It does not natively support distributed architectures \cite{distnumpy} which severely limits the potential for scientific computing using this package. Despite this the usefulness of this package is that it is easy to do prototype implementations.
 
 At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} is a statically allocated data structure, which after creation cannot change in size. If an attempt to change the size of an existing array is made, the existing array is simply overwritten. To allocate an array fitting the data layout (discussed in part in \autoref{sec:matlabimplementation} and \autoref{sec:datalayout}), the following command is used:
 
@@ -98,7 +97,7 @@ At the core of the NumPy package is the \textit{ndarray}. The \textit{ndarray} i
 >>> F = numpy.zeros((9,nx,ny), dtype=float)
 \end{verbatim}
 
-This allocates a three dimensional array consisting of zeros. Here the first dimension spans 9 indices, and the other two dimensions span the given width and height of the simulated field. The \texttt{dtype} parameter decides what data-type is to be used, in this case a float of no specification. 
+This allocates a three dimensional array consisting of zeros. Here the first dimension spans 9 indices, and the other two dimensions span the given width and height of the simulated field. The \texttt{dtype} parameter decides what data-type is to be used, in this case a float of no specification.
 
 As an alternative an array can be allocated with ones instead of zeros, which is useful for generating the scenery in the simulation field. This is simply done by the command
 
@@ -106,7 +105,7 @@ As an alternative an array can be allocated with ones instead of zeros, which is
 >>> BOUNDi = numpy.ones(BOUND.shape, dtype=float)
 \end{verbatim}
 
-Arrays have certain attributes attached to them, which can be accessed by the dot operator. In the command above it can be seen that one of these attributes, .shape, is accessed to create a new array with the same shape as another array. Here the meaning of the command is to create an array consisting of ones called \texttt{BOUNDi} in the shape of \texttt{BOUND}, i.e. with the same dimensions as \texttt{BOUND}.
+Arrays have certain attributes attached to them, which can be accessed by the dot operator. In the command above it can be seen that one of these attributes, \texttt{.shape}, is accessed to create a new array with the same shape as another array. Here the meaning of the command is to create an array consisting of ones called \texttt{BOUNDi} in the shape of \texttt{BOUND}, i.e. with the same dimensions as \texttt{BOUND}.
 
 When dealing with data in an euclidean space it is important to remember that the array class in NumPy is column major. Therefore methods for example used for plotting data will expect the first dimension of a two-dimensional array to correspond with the y-axis of a normal plot. 
 
@@ -131,11 +130,11 @@ To expand a matrix by a new dimension, which is needed for the boundary calculat
 
 
 \subsection{PyCUDA}
-PyCUDA is an extension for the Python language, that allows for full access to the functionality available to CUDA C. Since Python is a scripting language, which means it is not compiled but interpreted, the programming process is leveraged. The work-flow of PyCUDA is shown in \autoref{pcwork}. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this paper. The testing procedure will also gain more reliability by keeping the execution on the same platform.
+PyCUDA is an extension for the Python language, that allows for full access to the functionality available to CUDA C. Since Python is a scripting language, which means it is not mainly compiled but interpreted, the programming process is leveraged. The work-flow of PyCUDA is shown in \autoref{pcwork}. One notable advantage over CUDA C is automatic resource control. Another advantage is the tight coupling with NumPy, which is especially good for the main purpose of this project. The testing procedure will gain more reliability by keeping the execution on the same platform.
 
 \insfig{./images/pycudaworkflow.pdf}{1.0\textwidth}{PyCUDA work-flow (from \cite{kloeckner_pycuda_2009})}{pcwork}
 
-PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C-code to be embedded into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA kernels. A kernel is defined as a string like this
+PyCUDA allows a programmer trained in the usage of CUDA C, to easily start programming. Basically PyCUDA allows for CUDA C code to be embedded into the Python script. This is afforded by the \texttt{SourceModule}, which is a command used for creating CUDA kernels. A kernel is defined as a string like this
 
 \begin{verbatim}
 mod = SourceModule("""
@@ -153,9 +152,9 @@ This is just ordinary CUDA C, embedded in the Python code. To get the handle for
 multiply_them = mod.get_function("multiply_them")
 \end{verbatim}
 
-Now \texttt{multiply\_them} can be called like any normal Python function and the kernel will run with the arguments supplied in the call. When passing parameters as constant, it is easy to string replace them into the kernel before it gets turned into a CUDA kernel. An example of this is shown in \autoref{minikernel}
+Now \texttt{multiply\_them} can be called like any normal Python function and the kernel will run with the arguments supplied in the call. When passing parameters like constants, it is easy to string replace them into the kernel before it gets turned into a CUDA kernel. An example of this is shown in \autoref{minikernel}
 
-\lstset{language=Python, caption={An example of a kernel implemented in PyCUDA, here showing how constants are supplied on compile time},label=minikernel}
+\lstset{language=Python, caption={An example of a kernel implemented in PyCUDA, here showing how constants are supplied to the kernel by string replacement},label=minikernel}
 \begin{lstlisting}
 constant = 10
 
@@ -173,7 +172,7 @@ mult_string = mult_string % {
 mod = SourceModule(mult_string)
 \end{lstlisting}
 
-Here the \texttt{\%(CONSTANT)s} is the label for the location for replacement of the string with the defined constant \texttt{constant} containing the value 10. This is done right after the kernel string by assigning a value to the label \texttt{'CONSTANT'}. As usual the string is sent as argument to the \texttt{SourceModule} and the kernel is ready to go.
+Here \texttt{\%(CONSTANT)s} is the label denoting the location for replacement of the string with the defined constant, \texttt{constant}, containing the value 10. This is done right after the kernel string by assigning a value to the label \texttt{'CONSTANT'}. As usual the string is sent as argument to the \texttt{SourceModule} and the kernel is ready to go.
 
 As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to. Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
@@ -183,7 +182,7 @@ When creating variables in NumPy, meant to be transferred to the GPU by PyCUDA, 
 >>> F = numpy.zeros((9,nx,ny), dtype=float).astype(numpy.float32)
 \end{verbatim}
 
-The \texttt{astype} ensures data is allocated as 32-bit floats, which are especially suited for CUDA.
+The \texttt{astype} ensures data is allocated as 32-bit float, which is accepted by the GPU used for testing.
 
 PyCUDA allows for allocation to different memory types on the GPU as seen in \autoref{cudamem}. We have already covered global memory. What remains is one of the CPU read/write GPU read memories, Texture-memory. Texture-memory is a special kind of memory which exhibits a spatial characteristic. This means that data most suited for this memory is either two or three dimensional. This memory is relatively fast compared with the global memory, but the drawback is that seen from the GPU it is read only. The allocation and usage is reminiscent of the CUDA C method. As with CUDA C a texture is defined in the kernel, which is contained within PyCUDA's \texttt{SourceModule}
 
@@ -198,7 +197,7 @@ texture_func = mod.get_function("kernel_handle")
 texref = mod.get_texref("tex")
 \end{verbatim}
 
-Now the that the reference has been set up, it is possible to load data into the texture. Loading a matrix into the texture is done like this
+The reference has been set up, and it is possible to load data into the texture memory. Loading a matrix into the texture is done like this
 
 \begin{verbatim}
 >>> pycuda.driver.matrix_to_texref(a, texref, order="C")
@@ -206,7 +205,7 @@ Now the that the reference has been set up, it is possible to load data into the
 
 Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} \cite{pycuda}.
 
-A very clever feature in PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs it's computations on the GPU instead of one CPU-core. To create an empty GPUArray, a, using an \textit{ndarray}, x, as a template the following command can be used
+A very clever feature in PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs its computations on the GPU instead of one CPU-core. To create an empty GPUArray, \texttt{a}, using an \textit{ndarray}, \texttt{x}, as a template the following command can be used
 
 \begin{verbatim}
 a = gpuarray.empty_like(x)
@@ -231,26 +230,26 @@ This will return \texttt{a\_gpu} to a normal \textit{ndarray}, \texttt{a\_cpu}. 
 \subsection{Design choices}
 In this section the choices made during the implementation of the D2Q9 LBM will be described. The implementation takes origin in the Matlab code seen in \autoref{lbmmatlab}.
 
-To be able to perform a proper comparison between the CPU-- and GPU--version of the model, a NumPy version has been created, also taking origin in the Matlab code. This allows for the same benchmarking technique within the Python code, using the \texttt{timeit} class.
+To be able to perform a proper comparison between the CPU-- and GPU--version of the model, a NumPy version has been created, also taking origin in the Matlab code and with inspiration from \cite{madsbklbm}. This allows for the same benchmarking technique within the Python code, using the \texttt{timeit} class.
 
 
 
 \subsubsection{Data layout}\label{sec:datalayout}
-The data layout was found, by the analysis of the Matlab script, to need to consist of a two dimensional matrix, repeated nine times for the D2Q9 LBM. The D2Q9 LBM maintains densities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $nx \cdot ny$ then, to be able to contain this, the data structure must be able to contain $9 \cdot nx \cdot ny$. For both the NumPy and PyCUDA version the matrix index has been chosen as the first dimension instead of the third as it is in the Matlab script. This is because it is easier to handle upon linearisation and will fit the usage of some commands like \texttt{add.reduce}.
+The data layout was found, by the analysis of the Matlab script, to consist of a two dimensional matrix, repeated nine times for the D2Q9 LBM. The D2Q9 LBM maintains densities for eight directional states plus one stationary state per point in the simulated field. If the dimension of the simulated field is $nx \cdot ny$ then, to be able to contain this, the data structure must be able to contain $9 \cdot nx \cdot ny$. For both the NumPy and PyCUDA version the matrix index has been chosen as the first dimension instead of the third as it is in the Matlab script. This is because it is easier to handle linearisation and will fit the usage of some commands like \texttt{add.reduce}. Also since Python uses zero based indexing for arrays, index 0 has been chosen to correspond with the stationary state matrix, which has index 9 in the Matlab script.
 
 
 
 \subsubsection{NumPy}
-Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices. This code was made with inspiration from \cite{madsbklbm}. The resulting code can be viewed in \autoref{lbmnumpy}
+Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices. The resulting code can be viewed in \autoref{lbmnumpy}
 
-Wrapping and shifting is done in lines 72--103 of \autoref{lbmnumpy} and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, when assigning it back to the original matrix:
+Wrapping and shifting is done in lines 72--103 of \autoref{lbmnumpy} and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, thereafter assigning it back to the original matrix:
 
 \begin{verbatim}
 F[1,:,0]     = T[1,:,-1]
 F[1,:,1:]    = T[1,:,:-1]
 \end{verbatim}
 
-The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently, elements one to the end (\texttt{1:}) are assigned to elements zero to next to last (\texttt{:-1}). The mechanics of this procedure is illustrated in \autoref{numpywrap}
+The first assignment accesses a negative index in the temporary matrix, which in NumPy wraps around to the end of the matrix. This is assigned to the first element in the matrix. Subsequently, elements zero to next to last (\texttt{:-1}) are assigned to elements one to the end (\texttt{1:}). The mechanics of this procedure is illustrated in \autoref{numpywrap}
 
 \insfig{./images/numpywrap.png}{0.7\textwidth}{Wrapping and shifting mechanism in one direction for NumPy}{numpywrap}
 
@@ -259,9 +258,9 @@ The boundary bounce-back calculations are done by using two matrices, one normal
 
 
 \subsubsection{PyCUDA}
-The implementation of the PyCUDA version takes origin in the analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelise an algorithm. The resulting code can be viewed in \autoref{lbmcuda}.
+The implementation of the PyCUDA version takes origin in the analysis of the Matlab-script. The analysis yielded a clear picture of the procedures inherent in the program. This is key knowledge in attempting to parallelize an algorithm. The resulting code can be viewed in \autoref{lbmcuda}.
 
-The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelised. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
+The knowledge gained from the analysis showed that the procedures in the Matlab-script exhibited characteristics necessary for a program to be parallelized. The problem is very easily decomposed to much smaller sub problems. The object was then to think of a proper way to arrange data and thread execution. In the end it was decided to arrange each lattice node, so that this would be processed by a single GPU-thread. This means that each thread is a single unit in the lattice, taking care of the same data-location in all nine matrices.
 
 The main challenge in arranging data is that it is important that each thread is treated as a single non-dependent unit, which, on execution, knows where it is and what data it is supposed to operate on. To help, CUDA supplies some indexing constants for use in the kernel, as stipulated in the CUDA section (\autoref{cudaindex}).
 
@@ -269,7 +268,7 @@ Since CUDA C does not have a construct like NumPy's \textit{ndarray}, it is nece
 
 \insfig{./images/arraywrapping.pdf}{0.5\textwidth}{A linear array wrapped to fit with the underlying data-structure (2D array)}{arraywrap}
 
-This however is complicated by the fact that we do not traverse the array accessing each element in sequence. Instead we access the array from certain points within the CUDA block structure. This mean that each thread has it's own specific data-point in the array. Thus we need to linearise the array with the tools given to us in the CUDA programming model.
+This however is complicated by the fact that we do not traverse the array accessing each element in sequence. Instead we access the array from certain points within the CUDA block structure. This mean that each thread has its own specific data-point in the array. Thus we need to linearise the array with the tools given to us in the CUDA programming model.
 
 This is done by clever use of the block index, block dimension and thread index. Imagine we have a linear array we need to spread out over a series of CUDA blocks. The kernel has been launched with a pre-calculated block size, and the amount of blocks have been calculated to fit with the data in question. If we take a practical example and say our blocks are one-dimensional, and they as a maximum can contain 10 threads. Your array contains 35 elements, and we want to be able to index this within the CUDA-kernel. The linear index mapping from thread location in the CUDA kernel to an array index is then calculated like this
 
@@ -277,7 +276,7 @@ This is done by clever use of the block index, block dimension and thread index.
 idx = threadIdx.x + blockIdx.x * blockDim.x;
 \end{verbatim}
 
-In \autoref{linearindex}, it can be seen how this works for two thread locations within the CUDA-kernel. The block dimension is used together with the block index, to determine what block the thread is in, then we only have to add the thread index within the found block and we have the linear index. This technique is used throughout the code in implementing the GPU-version of the D2Q9 LBM, only extended to either two or three dimensions.
+In \autoref{linearindex}, it can be seen how this works for two thread locations within the CUDA-kernel. The block dimension is used together with the block index, to determine what block the thread is in, then we only have to add the thread index within the found block and we have the linear index. This technique is used throughout the code in implementing the GPU-version of the D2Q9 LBM, only extended to two dimensions.
 
 \insfig{./images/linearindex.pdf}{1.0\textwidth}{Calculating the linear index of a data point in an array for the CUDA thread to access}{linearindex}
 
@@ -298,7 +297,7 @@ int cur   = x + y * nx;
 
 This successfully emulates a two dimensional array by using the block and thread index in the y-direction as well. The trick is that when the y-coordinate increases, the index has to follow the principle of the linearisation. Here when the y-coordinate increases it really means it has surpassed a certain amount of horizontal strips in the array, where the length of these strips are added to the index (illustrated in \autoref{arraywrap}). So to clarify the code above, the linear index of the x-coordinate is calculated as before, as well as the y-index, but we cannot access the array with these two indices, since the array is one dimensional. Therefore the y-dimension must be extended along a linear axis. This is simply done by increasing the index by \textit{nx}, which is the size of the x-axis of the simulated field, for every y-coordinate.
 
-We are still missing one thing before we are ready with our indexing-scheme. We need to access nine separate matrices also by linearising their starting position, much like in the original Matlab-script's variable \texttt{CI}. As described in the data-structure section, index 0 has been chosen to contain the stationary matrix instead of 9 as in the Matlab-script. In this way all directional matrices can keep numbering consistently with the Matlab-script since Matlab uses one-based indexing and Python uses zero-based indexing.
+We are still missing one thing before we are ready with our indexing-scheme. We need to access nine separate matrices also by linearising their starting position, much like in the original Matlab-script's variable \texttt{CI}. As described in \autoref{sec:datalayout}, index 0 has been chosen to contain the stationary matrix instead of 9 as in the Matlab-script. In this way all directional matrices can keep numbering consistently with the Matlab-script since Matlab uses one-based indexing and Python uses zero-based indexing.
 
 To get the starting position of the other matrices, it is simply a matter of finding the size of the matrix, and adding to the index already found above
 
@@ -310,7 +309,7 @@ int size  = nx * ny;
 
 So when wanting to access the first matrix $1 \times \mathrm{\texttt{size}}$ is added to the index \texttt{cur}, the second matrix $2 \times \mathrm{\texttt{size}}$, and so on. Now that the indexing problem is solved, the method can be used throughout the program since the same data-structure as described in \autoref{sec:datalayout} will be used for all kernels.
 
-When starting a kernel in CUDA, it needs to know the dimension of the blocks and how many blocks to launch in the grid. PyCUDA is of course no exception. The amount of blocks to launch is calculated after this simple formula
+When starting a kernel, CUDA C needs to know the dimension of the blocks and how many blocks to launch in the grid. PyCUDA is of course no exception. The amount of blocks to launch is calculated after this simple formula
 
 \begin{verbatim}
 dim         = 16
@@ -335,13 +334,13 @@ if(x < nx && y < ny)
 Here \texttt{x} and \texttt{y} is the current threads location in the entire grid, while \texttt{nx} and \texttt{ny} is the real size of the simulated field. 
 
 
-\paragraph{Propagation kernel} The density kernel implementation can be seen at lines 103--143 of \autoref{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually accepts densities of the nearest neighbours around it, as seen in \autoref{cudaprop}.
+\paragraph{Propagation kernel} The propagation kernel implementation can be seen on lines 103--143 of \autoref{lbmcuda}. In the Matlab-script, propagation relied on index shifting and recreation of arrays from this shifted index. In the NumPy code, propagation relied on array slicing and shifting by reassigning sliced parts to other indices than the original matrix. We do not have the luxury of these operations in CUDA C, firstly because they are expensive, secondly because they do not fit with the parallel paradigm. We must instead think as a single unit in the matrix. What is it that is really happening when these re-indexing or shifting actions occur. Breaking it down we see that one node in the matrix actually accepts densities of the nearest neighbours around it, as seen in \autoref{cudaprop}.
 
 As mentioned before, threads must be aware of their data's position in the overall data space, by inferring it from their position in the block/grid layout. This is already done above. What is missing is an indexing of the nearest neighbours, and the wrapping which occurs in the original code. Since we already have the x- and y-indices it is easy to get the nearest neighbours of a node, it is just a matter of adding and/or subtracting one to the x- and/or y-index, still keeping in mind that the y-index needs to be further linearised afterwards.
 
-Wrapping the matrices is a bit more complex. The thread has no concept of the matrix as is, therefore it is necessary that the thread knows what to do, if it's on the edge of the matrix and about to be propagated in a direction outside the matrix.
+Wrapping the matrices is a bit more complex. The thread has no concept of the simulated field as is, therefore it is necessary that the thread knows what to do, if it's on the edge of the field and about to be propagated in a direction outside the field.
 
-When a thread tries to access a space which is beyond the border of the matrix, the index should wrap around to the other side of the matrix. This is usually done by using integer division. By calculating the index modulus (\%) total number of nodes we get this wrapping behaviour. This is done by the formula
+When a thread tries to access a space which is beyond the border of the simulated field, the index should wrap around to the other side of the field. This is usually done by using integer division. By calculating the index modulus (\%) total number of nodes we get this wrapping behaviour. This is done by the formula
 
 \begin{verbatim}
 p + b % b
@@ -353,17 +352,17 @@ Where \texttt{b} is the position in the index and \texttt{b} is the width of the
 (10 + 10) % 10 = 0
 \end{verbatim}
 
-keeping in mind that arrays are using zero-based indices. This is exactly what we want to do and it will work for individual nodes independently, so they will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
+Keeping in mind that arrays are using zero-based indices, this is exactly what we want to do and it will work for individual nodes independently. They will know if they should wrap around depending on their location, and the direction of the wrapping in question. 
 
-As another example when we want to propagate westward, we would have to access element -1, i.e. wrap around to the end of the 
+As another example when we want to propagate westward, we would have to access element -1, i.e. wrap around to the end of the simulated field. We get by using the same formula
 
 \begin{verbatim}
 (-1 + 10) % 10 = 9
 \end{verbatim}
 
-e.g. the last index in the array. Although this is a viable solution, it is very inefficient to use integer division in CUDA, therefore it should be avoided altogether (\cite{bestpracticesguide} section 5.1.1 p. 45).
+the last index in the array. Although this is a viable solution, it is very inefficient to use integer division in CUDA C, therefore it should be avoided altogether (\cite{bestpracticesguide} section 5.1.1 p. 45).
 
-A better way to solve this problem relies on conditionals. This is done by simply letting the thread check if the node is on the edge of the matrix by comparing the current node's position with the maximum amount of nodes, or with zero if it is propagating in the other direction. For brevity the ternary operator is used, which has the form
+A better way to solve this problem relies on conditionals. This is done by simply letting the thread check if the node is on the edge of the simulated field by comparing the current node's position with the maximum amount of nodes, or with zero if it is propagating in the other direction. For brevity the ternary operator is used, which has the form
 
 \begin{verbatim}
 test ? true : false
@@ -375,7 +374,7 @@ In this way it is easy to let each thread check if it is on the edge of the matr
 int F1 = (x==0?nx-1:x-1) + y * nx;
 \end{verbatim}
 
-This might seem reversed compared with previous code, since one would expect that the last index should be wrapped around, e.g. the node reaching the maximum of the matrix. This is not the case since we now view from a single node and need to accept densities from surrounding nodes. It becomes clearer when viewing the assignment
+This might seem reversed compared with the Matlab- and NumPy-version, since one would expect that the last index should be wrapped around, e.g. the node reaching the maximum of the matrix. This is not the case since we now view from a single node and need to accept densities from surrounding nodes. It becomes clearer when viewing the assignment
 
 \begin{verbatim}
 F[1*size + cur] = T[1*size + F1];
@@ -386,9 +385,9 @@ Here the current node accepts density from the node in the calculated position, 
 \insfig{./images/cudaprop.pdf}{0.4\textwidth}{A single node accepting densities from surrounding neighbours}{cudaprop}
 
 \paragraph{Density kernel}
-The density kernel is found on lines 149--209 in \autoref{lbmcuda}. In the Matlab version the bounce-back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the CUDA since the data access is already linearised. It means that the code cleans up very nicely and becomes very efficient compared with both the Matlab and the NumPy versions. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
+The density kernel is found on lines 149--209 in \autoref{lbmcuda}. In the Matlab version the bounce-back was handled by linearising the location of obstacle nodes throughout the nine matrices. This is not necessary in the PyCUDA-version since the data access is already linearised. This means that the code cleans up very nicely and becomes very efficient compared with both the Matlab- and the NumPy-version. To save the density of the obstacle nodes it is just a matter of sending the \texttt{BOUND} variable to the GPU, and testing if the thread is accessing a node for which there is an obstacle. If there exists an obstacle the densities are saved in the \texttt{BOUNCEBACK} variable.
 
-The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab and NumPy version. Here the scenario can be set up as in the NumPy version, one of which is called the lid driven cavity \cite{lid}. The parameter to change scenario is supplied to the kernel via string replacement. In the kernel '\%s' denotes the place to insert and on line 202 of \autoref{lbmcuda} the replacement is done. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
+The \texttt{DENSITY} is calculated by summing up the nine matrices for the current node. The same happens for the \texttt{UX} and \texttt{UY} variables. The inlet pressure is increased in the same way as in the Matlab- and NumPy-version. Here the scenario can be set up as in the NumPy-version, one of which is called the lid driven cavity \cite{lid}. The parameter to change scenario is supplied to the kernel via string replacement. Lastly the density for the obstacle nodes is set to zero in \texttt{D}, \texttt{UX} and \texttt{UY}. This is done in the end as to avoid divide-by-zero errors when calculating the \texttt{UX} and \texttt{UY} variables.
 
 
 \paragraph{Equilibrium kernel}
@@ -398,13 +397,13 @@ As with the density kernel, constants are supplied to the kernel by string repla
 
 
 \paragraph{Bounce-back kernel}
-The bounce-back kernel works in the same way as the density kernel. It is listed in \autoref{lbmcuda} lines 298-321. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The shifted densities are then reassigned back to \texttt{F}.
+The bounce-back kernel works in the same way as the density kernel. It is listed in \autoref{lbmcuda} lines 298-321. The thread uses \texttt{BOUND} to detect if it is an obstacle node. The inverted densities are then reassigned back to \texttt{F}.
 
 
 
 
 \subsection{Correctness}
-To test for the correctness of the two implementations in NumPy and PyCUDA, a test was devised involving the original Matlab script. The aim of the test was of course to generate the same output in each of the different versions. A 10 by 10 field with a boundary consisting of one line along the x-axis was used to create the same conditions in each implementation. The implementation of propagation wraps around so it is as if the flow is surrounded vertically in a tube. The Matlab script would generate a unique pattern after 150 iterations, so the test was if the two other implementations would do the same under equal conditions. Here are the results
+To test for the correctness of the two implementations in NumPy and PyCUDA, a test was devised involving the original Matlab script. The aim of the test was of course to generate the same output in each of the different versions. A 10 by 10 field with a boundary consisting of one line along the x-axis was used to create the same conditions in each implementation. The implementation of propagation wraps around so it is as if the flow is surrounded in a horizontal tube. The Matlab script would generate a unique pattern after 150 iterations, so the test was if the two other implementations would do the same under equal conditions. Here are the results
 
 \begin{figure}[H]
 \centering
@@ -430,18 +429,18 @@ A visual inspection of \autoref{correctness} reveals that the implementations ar
 
 
 \subsection{Optimization}
-To further optimize the PyCUDA implementation one would look into different memory structures. The limiting factor in most parallel algorithms is the memory access pattern. Global memory is a relatively slow memory compared with the shared memory or the texture memory. Each of these have their specific purpose, and thought needs to be given to when to use them.
+To further optimize the PyCUDA implementation one would look into different memory strategies. The limiting factor in most parallel algorithms is the memory access pattern. Global memory is a relatively slow memory compared with the shared memory or the texture memory. Each of these have their specific purpose, and thought needs to be given to when to use them.
 
-Certain parts of the data could be loaded into parts of memory more suited for the usage of that data. The \texttt{BOUND} variable is for example only read, and would benefit from a memory type which was spatial in layout. The texture memory would be a good candidate for this, and would increase the performance gain over a normal CPU-implementation.
+Certain parts of the data could be loaded into parts of memory more suited for the usage of that data. The \texttt{BOUND} variable is for example only read, and would benefit from a memory type which was spatial in layout. The texture memory would be a good candidate for this, and would increase the performance gain.
 
-Utilizing shared memory in each block would also provide a performance gain, but this gain would come with the cost of having to synchronize each block with adjacent blocks. Many strategies could be used to resolve this, one very common one is to calculate all changes on the border of the block first so that other blocks would not have to wait for a block to finish. (TODO: find a good quote for this in parallelism book)
+Utilizing shared memory in each block would also provide a performance gain, but this gain would come with the cost of having to synchronize each block with adjacent blocks. Many strategies could be used to resolve this, one of which is to calculate all changes on the border of the block first so that other blocks would not have to wait for a block to finish.
 
 
 
 \subsection{Issues/bugs}
 An earlier version of the PyCUDA implementation exhibited a bug when running the kernel with a simulated field larger than the block size ($16\times16$) and not a multiple of 16 in each dimension. If the simulated field is chosen to say for example $25\times25$, the program would throw an error.
 
-The reason for this was a mixture of miscalculations of the current thread's index, calculation of the size of the simulated field, and lacking the ability for threads to disable when there is no data for them to process. The latter is illustrated in \autoref{blockbug}. The kernels are always launched with the same block-size, and therefore will not fit with simulated fields of which the dimensions are a multiple of the block size's dimension. If the threads are not instructed not to do so, they will try to process data, regardless if there is data or not. To solve this problem a condition was inserted to check if the threads index (x and y) is within the simulated field, and therefore has data to process. 
+The reason for this was a mixture of miscalculations of the current thread's index, calculation of the size of the simulated field, and lacking the ability for threads to disable when there is no data for them to process. The latter is illustrated in \autoref{blockbug}. The kernels are always launched with the same block-size, and therefore will not fit with simulated fields of which the dimensions are not a multiple of the block size's dimension. If the threads are not instructed not to do so, they will try to process data, regardless if there is data or not. To solve this problem a condition was inserted to check if the thread's index (x and y) is within the simulated field, and therefore has data to process. 
 
 \insfig{./images/blockbug.pdf}{0.4\textwidth}{The allocated memory is smaller than the designated block size}{blockbug}
 
@@ -456,4 +455,4 @@ int cur 	  = x + y * nx;
 int size  = nx * ny;
 \end{verbatim}
 
-Both the \texttt{nx} and \texttt{ny} as well as the \texttt{size} was calculated incorrectly this way. The solution to this problem was not hard to find though. Instead of letting the threads calculate the simulated field, which anyway is impossible to infer from the grid-structure, the simulated field's dimensions were fed to the kernels as constants.
+Both the \texttt{nx} and \texttt{ny} as well as the \texttt{size} was calculated incorrectly this way. The solution to this problem was not hard to find though. Instead of letting the threads calculate the simulated field, which anyway is impossible to infer from the grid-/block-structure, the simulated field's dimensions were fed to the kernels as constants by string replacement.

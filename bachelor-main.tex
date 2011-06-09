@@ -72,7 +72,7 @@ University of Copenhagen
 
 \section*{Abstract (\textit{Jens Bang})}
 
-The Lattice Boltzmann Model is widely used for various simulations of movement of liquids and gasses. This paper will show that it is possible to achieve even high gains in execution speed by combining ease of implementation and parallel processing, by implementing the Lattice Boltzmann Model in Python, using the PyCuda extension to access the highly parallel CUDA architecture. We will compare run times between the PyCuda version and a version utilizing the more conventional, and not parallel, NumPy extension, to show the speed increases.
+The Lattice Boltzmann Model is widely used for various simulations of movement of liquids and gases. This paper will show that it is possible to achieve even high gains in execution speed by combining ease of implementation and parallel processing, by implementing the Lattice Boltzmann Model in Python, using the PyCUDA extension to access the highly parallel CUDA architecture. We will compare run times between the PyCUDA version and a version utilizing the more conventional, and not parallel, NumPy extension, to show the speed increases.
 
 \newpage
 \tableofcontents
@@ -124,23 +124,23 @@ The two Python implementations of the Lattice Boltzmann Model are both based on 
 \newpage
 \section{Conclusion}
 
-The revised goals of this thesis was to show the increase in execution speed, when switching a Python implementation of the Lattice Boltzmann Model from NumPy to PyCuda. While we realize that comparing the execution speed of a NumPy, which always only runs on one core, and PyCuda, which is higly parallel in nature, running on multiple cores, scientifically speaking is like comparing apples and oranges, we wanted to show the gain in a real-life setting, and so we feel that the comparison is valid.
+The revised goals of this thesis was to show the increase in execution speed, when switching a Python implementation of the Lattice Boltzmann Model from NumPy to PyCUDA. While we realize that comparing the execution speed of a NumPy, which always only runs on one core, and PyCUDA, which is highly parallel in nature, running on multiple cores, scientifically speaking is like comparing apples and oranges, we wanted to show the gain in a real-life setting, and so we feel that the comparison is valid.
 
-As outlined in \autoref{usingthelbm} the Lattice Boltzmann Model is widely used in many different circumstances, to model a large variety of things. This is why we feel it is important to show the speed increase, when switching from NumPy to PyCuda, because that is the benfit any programmer will see, when implementing the same switch from NumPy to PyCuda.
+As outlined in \autoref{usingthelbm} the Lattice Boltzmann Model is widely used in many different circumstances, to model a large variety of things. This is why we feel it is important to show the speed increase, when switching from NumPy to PyCUDA, because that is the benefit any programmer will see, when implementing the same switch from NumPy to PyCUDA.
 
-We started by writing a Python implementation of the supplied Matlab script, using NumPy. When we were certain of the correctness of this implementation, we wrote the PyCuda version of the Python script, and tested the correctness of this new implementation. Then we performed time studies to see what kind, if any, of speed increase we would get. As expected the speed increase is quite significant, especially with larger problem spaces.
+We started by writing a Python implementation of the supplied Matlab script, using NumPy. When we were certain of the correctness of this implementation, we wrote the PyCUDA version of the Python script, and tested the correctness of this new implementation. Then we performed time studies to see what kind, if any, of speed increase we would get. As expected the speed increase is quite significant, especially with larger problem spaces.
 
-As mentioned in \autoref{sec:runningtime} the graph shapes in \autoref{results} are reminiscent of quadratic functions. But while the execution time the NumPy version very quickly becomes unmanageable, the execution time for the PyCuda version increases at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
+As mentioned in \autoref{sec:runningtime} the graph shapes in \autoref{results} are reminiscent of quadratic functions. But while the execution time the NumPy version very quickly becomes unmanageable, the execution time for the PyCUDA version increases at a much slower rate. In fact the PyCUDA version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
 
-We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCuda.
+We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCUDA.
 
 \subsection{Where to go from here?}
 
 There are two obvious ways to go from here:
 
 \begin{enumerate}
-\item As mentioned in \autoref{sec:testing} the PyCuda version is unoptimized, and it could be very interesting to see what kind of speed gains there is to be found by optimizing the code.
-\item Another intereresting angle would be to examine if OpenCL is comparable to CUDA, or if it delivers even greater speed increases.
+\item As mentioned in \autoref{sec:testing} the PyCUDA version is unoptimized, and it could be very interesting to see what kind of speed gains there is to be found by optimizing the code.
+\item Another interesting angle would be to examine if OpenCL is comparable to CUDA, or if it delivers even greater speed increases.
 \end{enumerate}
 
 \newpage
@@ -149,7 +149,7 @@ There are two obvious ways to go from here:
 \newpage
 \section{Bibliography}
 
-To ensure access to the various on-line documents we have used as references, we have created a page with PDF files produced from the documents that were avaiable when we published our thesis: \url{http://www.snej.dk/lbm/}.
+To ensure access to the various on-line documents we have used as references, we have created a page with PDF files produced from the documents that were available when we published our thesis: \url{http://www.snej.dk/lbm/}.
 
 \bibliographystyle{plain}
 \bibliography{library}
