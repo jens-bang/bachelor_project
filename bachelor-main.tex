@@ -130,7 +130,7 @@ As outlined in \autoref{usingthelbm} the Lattice Boltzmann Model is widely used 
 
 We started by writing a Python implementation of the supplied Matlab script, using NumPy. When we were certain of the correctness of this implementation, we wrote the PyCuda version of the Python script, and tested the correctness of this new implementation. Then we performed time studies to see what kind, if any, of speed increase we would get. As expected the speed increase is quite significant, especially with larger problem spaces.
 
-As can be seen from \autoref{results} the execution time for the NumPy version increases exponentially, and very quickly becomes unmanageable. The execution time for the PyCuda version on the other hand, seems to increase at an almost linear pace within the problem sizes we tested. But closer scrutiny of the graph shows that the PyCuda graph also increases exponentially, although at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
+As mentioned in \autoref{sec:runningtime} the graph shapes in \autoref{results} are reminiscent of quadratic functions. But while the execution time the NumPy version very quickly becomes unmanageable, the execution time for the PyCuda version increases at a much slower rate. In fact the PyCuda version is able to run problem spaces almost 3.5 times larger than the NumPy version in the same time frame.
 
 We have clearly done what we set out to do, which was to show a speed increase when switching a Python implementation from using NumPy to PyCuda.
 
