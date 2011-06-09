@@ -2,7 +2,7 @@
 
 
 \subsection{Matlab implementation analysis}\label{sec:matlabimplementation}
-The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take origin in a Matlab script (\autoref{lbmmatlab}). The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \autoref{matlabvars}
+The NumPy (\autoref{lbmnumpy}) and CUDA (\autoref{lbmcuda}) implementations take origin in a Matlab script (\autoref{lbmmatlab}) (from \cite{haslam}). The analysis has been made on the D2Q9 version, but the D3Q19 is just an extension of this with an extra dimension. Since the project relies on a black-box implementation scheme, it was necessary to first perform an analysis of the supplied script. The first step taken in the analysis was to map what each of the key variables purpose were. The result can be seen in \autoref{matlabvars}
 
 \begin{table}[htb]
 	\centering
@@ -241,7 +241,7 @@ The data layout was found, by the analysis of the Matlab script, to need to cons
 
 
 \subsubsection{NumPy}
-Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices.
+Since Python (and NumPy) is reminiscent of Matlab, there are no significant differences between the Matlab- and NumPy-version. The largest difference lies in the method for wrapping an array and the way the boundary is imposed on the directional matrices. This code was made with inspiration from \cite{madsbklbm}.
 
 Wrapping and shifting is done in lines 72--103 of \autoref{lbmnumpy} and relies on matrix slicing. The slicing is used to move parts of the array around by assigning a shifted slice to the original matrix, while wrapping the end around to the beginning of the array. This, of course, requires careful consideration so as to avoid writing already shifted data which would lead to undesired results. This problem is easily solved by having a temporary store for the matrix, and shifting the temporary matrix, when assigning it back to the original matrix:
 
