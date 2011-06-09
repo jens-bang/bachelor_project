@@ -59,7 +59,7 @@ The code to be executed on the GPU, \emph{the kernel}, launches a grid which con
 
 Blocks do not only have the role of sharing memory among threads. They also serve as a synchronization point for the threads within themselves. A special command within CUDA will make sure that all threads within a block have completed, before further execution is permitted.
 
-To support this structure, CUDA provides built-in facilities for indexing blocks and threads, listed in \hpref{table}{cudaindex}. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads. The possible layouts of the grid structure can be seen in \hpref{figure}{gridblockthread}.
+To support this structure, CUDA provides built-in facilities for indexing blocks and threads, listed in \autoref{cudaindex}. This allows the programmer to write code specifically for a single thread within a grid of many blocks, together containing millions of threads. The possible layouts of the grid structure can be seen in \autoref{gridblockthread}.
 
 \begin{table}[htb]
 	\centering
@@ -84,13 +84,12 @@ To support this structure, CUDA provides built-in facilities for indexing blocks
 When designing CUDA-programs it is important to split the problem up into parts that map directly into this block structure, so each thread has it's own specific and simple task.
 
 
-\newpage
 \subsubsection{CUDA data model}
-The process of working with CUDA consists of letting the CPU instruct the GPU what to do. In this is contained memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \hpref{figure}{cudaprocess}
+The process of working with CUDA consists of letting the CPU instruct the GPU what to do. In this is contained memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \autoref{cudaprocess}
 
 \insfig{./images/cudaprocess.png}{0.5\textwidth}{CUDA process model (from Wikipedia article, author: Tosaka)}{cudaprocess}
 
-CUDA exposes more than just one memory model to the programmer, each with their different purpose and performance. \hpref{Figure}{cudamem} shows the different types of memory. In \hpref{table}{cudamemtable} the different memory types are listed.
+CUDA exposes more than just one memory model to the programmer, each with their different purpose and performance. \autoref{cudamem} shows the different types of memory. In \autoref{cudamemtable} the different memory types are listed.
 
 \begin{table}[htb]
 	\centering
