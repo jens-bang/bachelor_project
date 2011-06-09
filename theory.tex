@@ -7,17 +7,16 @@ In this way the Lattice Boltzmann Model (LBM) describe simple fluids (gas and li
 
 Each point in the lattice has a set of state-variables attached, describing the state of the particle found at that point. Each point also has a set of fixed directions, along which the particle can travel. In a 2-dimensional lattice there are normally 9 directions, while in a 3-dimensional lattice you see either 15 or 19 directions. These 3 setups are normally referred to as D2Q9, D3Q15 and D3Q19.
 
-\insfig{./images/d2q9_d3q19.png}{0.5\textwidth}{LBM directions (TODO: Insert reference to Scholarpedia)}{lbmdirections}
+\insfig{./images/d2q9_d3q19.png}{0.5\textwidth}{LBM directions from \cite{scholarpedialbm})}{lbmdirections}
 
 The LBM divides the flow of gases or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles.
 
 \subsubsection{Using the LBM}\label{usingthelbm}
 Since the LBM is especially well suited to simulate flows around even very complex geometric structures, it has a wide variety of practical uses. Among these are:
 \begin{itemize}
-\item Simulating pore-scale processes in porous media [TODO Citation: BrittSBChristensenPhD-Thesis.pdf]
-\item Simulating Wind turbines [TODO Citation needed]
-\item Simulating the water flow around bridge pillars [TODO Citation needed]
-\item TODO Others?
+\item Simulating pore-scale processes in porous media
+\item Simulating Wind turbines
+\item Simulating the water flow around bridge pillars
 \end{itemize}
 
 \subsection{CPU vs. GPU (\textit{Jens Bang})}
