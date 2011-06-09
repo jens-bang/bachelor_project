@@ -9,7 +9,7 @@ Each point in the lattice has a set of state-variables attached, describing the 
 
 \insfig{./images/d2q9_d3q19.png}{0.5\textwidth}{LBM directions (TODO: Insert reference to Scholarpedia)}{lbmdirections}
 
-The LBM divides the flow of gasses or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles.
+The LBM divides the flow of gases or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles.
 
 \subsubsection{Using the LBM}
 Since the LBM is especially well suited to simulate flows around even very complex geometric structures, it has a wide variety of practical uses. Among these are:
@@ -81,7 +81,7 @@ To support this structure, CUDA provides built-in facilities for indexing blocks
 
 
 \newpage
-\insfig{./images/gridblockthread.pdf}{0.7\textwidth}{\textbf{Top:} Two dimensional block layout. \textbf{Bottom:} Three dimensional block layout. When threads increase in a block the layout is under a forced minimum, here assumed to be maximum 256 threads (inspired by \cite{cudabyexample} figure 5.2 p. 71).}{gridblockthread}
+\insfig{./images/gridblockthread.pdf}{0.65\textwidth}{\textbf{Top:} Two dimensional block layout. \textbf{Bottom:} Three dimensional block layout. When threads increase in a block the layout is under the forced maximum amount of threads per block, here assumed to be 256 threads (inspired by \cite{cudabyexample} figure 5.2 p. 71).}{gridblockthread}
 
 When designing CUDA-programs it is important to split the problem up into parts that map directly into this block structure, so each thread has it's own specific and simple task.
 
@@ -92,7 +92,7 @@ The process of working with CUDA consists of letting the CPU instruct the GPU wh
 
 \insfig{./images/cudaprocess.png}{0.5\textwidth}{CUDA process model (from Wikipedia article, author: Tosaka)}{cudaprocess}
 
-CUDA exposes more than just one memory model to the programmer, each with their different purpose and performance. \hpref{Figure}{cudamem} shows the different types of memory. In \hpref{table}{cudamemtable}
+CUDA exposes more than just one memory model to the programmer, each with their different purpose and performance. \hpref{Figure}{cudamem} shows the different types of memory. In \hpref{table}{cudamemtable} the different memory types are listed.
 
 \begin{table}[htb]
 	\centering

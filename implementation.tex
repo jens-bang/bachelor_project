@@ -55,7 +55,7 @@ Essentially propagating the data in an eastward direction, by wrapping the end o
 The rest of the propagation part of the script is simply an extension of the above, with the only difference being the direction of the propagation, by shifting the indices appropriate to the matrix in question.
 
 \subparagraph*{Density}
-The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab} of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
+The first task done in the density part (line 57-61 in \hpref{listing}{lbmmatlab}) of the Matlab script is the saving of densities bouncing back from obstacles. The way this is done is a little involved so it deserves some attention.
 
 On line 21 of \hpref{listing}{lbmmatlab} the variable \texttt{CI} is generated, and as stated in \hpref{table}{matlabvars} the variable is the linear index of the first element of the 1--8 matrices (matrix 9 is not used for bounce-back). This means that if the simulated field is $10\times10$ the indices would be
 
@@ -85,7 +85,7 @@ Here the special '.' operator is used, signifying that it is an element-by-eleme
 Subsequently the \texttt{FEQ}-variable is added to the \texttt{F}-variable
 
 \subparagraph*{Bounce-back}
-The final part bounce-back is done just like at our first encounter with bounce-back, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, only indices for density matrix 1 has been swapped with indices for density matrix 5, which is in the opposite westward direction as seen on \hpref{figure}{uxuy}.
+The final part bounce-back is done just like at our first encounter with bounce-back, in the density part where it is saved, only this time the directions have been shifted. The \texttt{REFLECTED} variable is just like \texttt{TO\_REFLECT}, with the difference for example being that density matrix 1 has been swapped with density matrix 5, which is in the opposite westward direction compared to the original direction. Taking this example, looking at \hpref{figure}{uxuy}, F1 is the original direction and the inverse direction is F5. This pattern of inverting is applied for all density matrices, effectively sending density in the opposite direction of the obstacle.
 
 
 
