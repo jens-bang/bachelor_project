@@ -175,7 +175,7 @@ mod = SourceModule(mult_string)
 
 Here the \texttt{\%(CONSTANT)s} is the label for the location for replacement of the string with the defined constant \texttt{constant} containing the value 10. This is done right after the kernel string by assigning a value to the label \texttt{'CONSTANT'}. As usual the string is sent as argument to the \texttt{SourceModule} and the kernel is ready to go.
 
-As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to (TODO: check whether the copy is just for a pointer to the python buffer or if data is loaded into gpu-memory). Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
+As with CUDA C it is also necessary to load data onto the GPU by first allocating space and then copying to the GPU-memory. PyCUDA allows for allocating memory on the GPU using the \texttt{driver.mem\_alloc} command, with argument for the size of the memory to allocate. This command will allocate global memory on the GPU, which is the memory both the CPU and GPU can read and write to. Copying to the GPU is performed with the \texttt{device.memcpy\_htod}. Copying back from the GPU is afforded by the command \texttt{driver.memcpy\_dtoh}.
 
 When creating variables in NumPy, meant to be transferred to the GPU by PyCUDA, it is important to specify a data-type the GPU will accept. For example to specify what kind of float type a new array should be created with, the command from the NumPy section can be augmented with the following statement
 
@@ -204,7 +204,7 @@ Now the that the reference has been set up, it is possible to load data into the
 >>> pycuda.driver.matrix_to_texref(a, texref, order="C")
 \end{verbatim}
 
-Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} (TODO: cite the pycuda manual).
+Here the \texttt{a} is used for the kernel call, and exists on the GPU-side. The last parameter decides what order the dimensions are, if it is 'C' then \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(y,x)}, otherwise if 'F' \texttt{tex2D(x,y)} is going to fetch \texttt{matrix(x,y)} \cite{pycuda}.
 
 A very clever feature in PyCUDA is the GPUArray class. The GPUArray behaves like the \textit{ndarray}, but performs it's computations on the GPU instead of one CPU-core. To create an empty GPUArray, a, using an \textit{ndarray}, x, as a template the following command can be used
 
@@ -320,7 +320,7 @@ gridDimX    = (nx+dim-1)/dim
 gridDimY    = (ny+dim-1)/dim
 \end{verbatim}
 
-Here it is assumed that a block can maximally contain 256 threads ($16\times16$ threads). This might not be the case depending on the system, but it is selected as a lowest common denominator, and can at any time be changed to fit the system. First the block dimension is calculated. Since the simulated field can be smaller than the block size it is necessary to check for this. Once this is done the grid dimension can be calculated. This part relies on a trick commonly used in integer division (TODO: cite cuda by example). The result is the amount of blocks which are able to contain the requested amount of nodes. These parameters are given as arguments upon a kernel launch like this
+Here it is assumed that a block can maximally contain 256 threads ($16\times16$ threads). This might not be the case depending on the system, but it is selected as a lowest common denominator, and can at any time be changed to fit the system. First the block dimension is calculated. Since the simulated field can be smaller than the block size it is necessary to check for this. Once this is done the grid dimension can be calculated. This part relies on a trick commonly used in integer division \cite[p.~65]{cudabyexample}. The result is the amount of blocks which are able to contain the requested amount of nodes. These parameters are given as arguments upon a kernel launch like this
 
 \begin{verbatim}
 prop(F_gpu, T_gpu, block=(blockDimX,blockDimY,1), grid=(gridDimX,gridDimY))
@@ -425,7 +425,7 @@ To test for the correctness of the two implementations in NumPy and PyCUDA, a te
 \label{correctness}
 \end{figure}
 
-A visual inspection of \autoref{correctness} reveals that the implementations are correct and produce the expected results according to the original Matlab implementation. There is however a small inaccuracy in the PyCUDA version on \autoref{correctness:c}, some of the velocities don't have exactly same length and direction as the NumPy version in \autoref{correctness:b}. This can be attributed to floating point inaccuracy (TODO: cite cuda best practices and maybe others).
+A visual inspection of \autoref{correctness} reveals that the implementations are correct and produce the expected results according to the original Matlab implementation. There is however a small inaccuracy in the PyCUDA version on \autoref{correctness:c}, some of the velocities don't have exactly same length and direction as the NumPy version in \autoref{correctness:b}. This can be attributed to floating point inaccuracy \cite[p.~51]{bestpracticesguide}.
 
 
 
