@@ -1,4 +1,4 @@
-\section{Testing (\textit{Jacob Salomonsen})}\label{sec:testing}
+\section{Testing}\label{sec:testing}
 The object of the testing is to find if an unoptimized GPU version of the D2Q9 LBM will outperform the CPU version, in terms of running time.
 
 \subsection{System description}
@@ -24,7 +24,7 @@ The tests were run on a MacBook Pro with specs listed in \hpref{table}{specs}
 \end{table}
 
 \subsection{Test design}
-Testing is performed with the same settings for the two versions (CPU and GPU). The amount of iterations made for the simulation is the same, as well as the obstacle scenario is also the same as seen on \autoref{tunnelimages}. The importance of choosing the obstacle scenario is significant, since this might affect the simulation, considering that some of the operations are different for nodes which are obstacles.
+Testing is performed with the same settings for the two versions (CPU and GPU). The number of iterations made for the simulation is the same, as well as the obstacle scenario also being the same, as seen on \autoref{tunnelimages}. The importance of choosing the obstacle scenario is significant, since this might affect the simulation, considering that some of the operations are different for nodes which are obstacles.
 
 The parameter which is changed is the simulated field. Here the parameter is tested with an increment of 16, where the field is always quadratic. The testing for each field size is performed in a sequence of three, and the average of these three results is taken. This is done both for the CPU- and the GPU-version.
 
@@ -32,4 +32,4 @@ The parameter which is changed is the simulated field. Here the parameter is tes
 The timing is performed by Python's built-in timing class, called \textit{timeit}. This class can time specific parts of a program given that they are defined as functions with the \texttt{def} keyword. Only the loop which iterates over the nodes is included in the function definition so that initialization latency is not included in the calculation of running time.
 
 \subsection{Scenarios}
-To visually compare with other implementations of the LBM a special test case has been used, called \emph{the lid driven cavity} \cite{lid}. This is a special setup which can help the implementer identify if the simulation behaves according to a standardized and accepted behaviour. This will not form the basis of any conclusions about the correctness of the LBM simulation as a whole, keeping in mind this is only a black-box implementation. It is interesting though, to see if the simulation performs as one would expect.
+To visually compare with other implementations of the LBM a special test case has been used, called \emph{the lid driven cavity} \cite{lid}. This is a special setup which can help the implementer identify if the simulation behaves according to a standardized and accepted behaviour. This will not form the basis of any conclusions about the correctness of the LBM simulation as a whole, keeping in mind that this is only a black-box implementation. It is interesting though, to see if the simulation performs as one would expect.

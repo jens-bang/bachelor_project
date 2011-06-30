@@ -1,6 +1,6 @@
 \section{Theory}
 
-\subsection{Lattice Boltzmann Model (\textit{Jens Bang})}
+\subsection{The Lattice Boltzmann Model}
 The Lattice Boltzmann Model (LBM) is a simplified version of the Boltzmann equation, which simulates the behaviour of fluid flows. The simplification consists of limiting the particles to only occupy certain points in space (vertices in a lattice), and to only travel along specified directional vectors, with constant speed. 
 
 In this way the Lattice Boltzmann Model (LBM) describes simple fluids (gases and liquids), i.e. it ignores thermal effects and tracers. The LBM simulates movements in fluids by looking at particles found at points in a lattice at discrete time-steps. There are different versions of the LBM using either 2-dimensional or 3-dimensional lattices.
@@ -9,7 +9,7 @@ Each point in the lattice has a set of state-variables attached, describing the 
 
 \insfig{./images/d2q9_d3q19.png}{0.5\textwidth}{LBM directions (from \cite{scholarpedialbm})}{lbmdirections}
 
-The LBM divides the flow of gases or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles.
+The LBM divides the flow of gases or fluids into small, discrete time-steps. For each time-step the algorithm traverses all lattice points and for each point calculates the velocity and direction the particle travels in, as well as handling any collisions between particles. The algorithm also handle situations where particles hit an obstacle, either an individual object or the boundary of the field of simulation (i.e. if simulating flow in a tube), and is therefore thrown back in the direction from which it came, the so called bounce-back effect.
 
 \subsubsection{Using the LBM}\label{usingthelbm}
 Since the LBM is especially well suited to simulate flows around even very complex geometric structures, it has a wide variety of practical uses. Among these are:
@@ -19,18 +19,18 @@ Since the LBM is especially well suited to simulate flows around even very compl
 \item Simulating the water flow around bridge pillars
 \end{itemize}
 
-\subsection{Parallel processing (\textit{Jens Bang})}
+\subsection{Parallel processing}
 
-Parallel computing is the execution of multiple processes on more than one CPU or processor core. Years ago computers with multiple CPUs or processor cores were rare, and most computers only had one CPU with one processor core. This meant that they had to simulate parallel processing, by using concurrency, also known as time slicing. Nowadays computers with multiple CPUs, or at least one multi-core CPU, are commonplace, so it is true parallel processing, where multiple tasks are physically run at the same time, each on their own CPU or processor core, or even each on their own separate computer.
+Parallel computing is the execution of multiple processes on more than one CPU or processor core. Years ago computers with multiple CPUs or processor cores were rare, and most computers only had one CPU with one processor core. This meant that they had to simulate parallel processing, by using concurrency, also known as time slicing. Nowadays computers with multiple CPUs, or at least one multi-core CPU, are commonplace, which gives us true parallel processing, where multiple tasks are physically run at the same time, each on their own CPU or processor core, or even each on their own separate computer.
 
 Parallel processing can take on different guises: Sometimes the processes run the same code on different data, sometimes the processes run completely different code sets. An example of the latter is a program that uses one thread to receive a video stream from an IP camera, while another thread displays the received video images on the computer's screen. A well known example of the former, on a grand scale, is the SETI@Home program, where the immense amounts of data collected by SETI is broken up into small packets, which are then handed over to different private PCs to be processed individually by running the exact same code on each computer, only on different parts of the data set.
 
 Sometimes parallel processing is performed by processes each working on their own discrete data set, as seen in SETI@Home, while at other times the processes work on a larger, shared data set. The important thing is not if they perform the same task or different tasks, nor is it important if the processes work on the same larger data set or on smaller, different data sets. The important thing in parallel processing is that the processes physically run at the same time on different CPUs or processor cores.
 
-\subsection{CPU vs. GPU (\textit{Jens Bang})}
+\subsection{CPU vs. GPU}
 When comparing a CPU with a GPU, it is clear that different goals for processor functionality produce quite different designs. While the CPU has to be good for solving \emph{any} problem, parallel workload or not, the GPU is designed with a specific task in mind, a task with a highly parallel workload.
 
-\insfig{./images/cpu-vs-gpu.png}{0.7\textwidth}{Visualization of the amount of a CPU is devoted to data processing as compared to a GPU (inspired by \cite{bestpracticesguide} figure 1-2 p. 3).}{cpuvsgpu}
+\insfig{./images/cpu-vs-gpu.png}{0.7\textwidth}{Visualization of the amount of a CPU which is devoted to data processing as compared to a GPU (inspired by \cite{bestpracticesguide} figure 1-2 p. 3).}{cpuvsgpu}
 
 Today's CPUs very often have more than one core, normally 2 or 4, which does let the CPU achieve a certain degree of parallelism. But because of the very often non-parallel nature of their workload, the CPU comes with a very sophisticated control logic, which is put in place to minimize the latency stemming from trying to parallelise a non-parallel workload. Today's CPUs also come with a big on-chip cache to minimize latency stemming from having to wait for the comparatively slow reads from general memory. All this results in a large part of the CPU being used for other tasks than the actual data processing.
 
@@ -38,9 +38,9 @@ Todays GPUs take advantage of the fact that graphics processing tasks are highly
 
 The reason that data level parallelism does not need much control logic, is because the same set of instructions has to be performed on large parts of the data set at the same time, so the GPU can load a large block of data and then run the same instruction on each bite (this can be one byte or several, depending on the instruction) of data in unison. This form of parallelism is what Flynn calls SIMD (Single instruction, multiple data), and was used as early as the CM-1 from Thinking Machines Corporation.
 
-The form of parallelism seen in nVidia's CUDA enabled GPUs is what nVidia call SIMT (Single Instruction Multiple Threads). The difference between original SIMD and SIMT is that under SIMT while each thread does run the same code, each individual thread doesn't have to execute exactly the same instruction at the same time. Threads can diverge, at which point the GPU's control logic will start cycling through sets of threads that agree on where in the executing code they are issuing the next instruction to each set of threads in order \cite[p.~81-82]{programmingguide}. 
+The form of parallelism seen in nVidia's CUDA enabled GPUs is what nVidia call SIMT (Single Instruction Multiple Threads). The difference between original SIMD and SIMT is that under SIMT while each thread does run the same code, each individual thread doesn't have to execute exactly the same instruction at the same time. Threads can diverge, at which point the GPU's control logic will start cycling through sets of threads that agree on where in the executing code they are, issuing the next instruction to each set of threads in order \cite[p.~81-82]{programmingguide}. 
 
-\subsection{CUDA (\textit{Jacob Salomonsen})}
+\subsection{CUDA}
 In the beginning, GPUs had only very limited purposes. Mostly they were about generating real-time graphics for games, but also in a few cases for production and scientific applications. This has changed since the proliferation of the pixel shader. A pixel shader basically produces a color for every point on a screen, by taking into account the (x,y) position of the pixel, the light settings of a scene, the material properties of objects in the scene and so on. Early researchers found that this ability to perform computations on each pixel could be harnessed to other uses. Since pixel shaders are completely controlled by the programmer, the possibility of simply giving a GPU data as input, instead of a scene to render, was within reach. This would mark the beginning of the general purpose GPU.
 
 The general purpose GPU did however lack a platform for developers to build upon, since learning to program pixel shaders required previous knowledge about either OpenGL or DirectX. Also even when knowing these frameworks, the model would lack the perspective of general purpose computing and instead be focused on generating graphics, where the general purpose computing aspect would be achieved by "cheating" the GPU into treating data as if it was a scene to be rasterized.
@@ -66,10 +66,10 @@ To support this structure, CUDA provides built-in facilities for indexing blocks
 		\toprule
 		Keyword & Dimensions & Usage \\
 		\midrule
-		threadIdx & x,y,z & index of the thread within the block \\
-		blockIdx & x,y & index of the block  \\
-		blockDim & x,y,z & amount of threads in each dimension \\
-		gridDim & x,y & amount of blocks i each dimension \\
+		threadIdx & x,y,z & Index of the thread within the block \\
+		blockIdx & x,y & Index of the block  \\
+		blockDim & x,y,z & Number of threads in each dimension \\
+		gridDim & x,y & Number of blocks i each dimension \\
 		\bottomrule
 	\end{tabular}
 	\caption{Indexing facilities available in the CUDA api}
@@ -84,11 +84,11 @@ When designing CUDA-programs it is important to split the problem up into parts 
 
 
 \subsubsection{CUDA data model}
-The process of working with CUDA consists of letting the CPU instruct the GPU what to do. In this is also contained the job of memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \autoref{cudaprocess}
+The process of working with CUDA consists of letting the CPU instruct the GPU what to do. This includes the job of memory handling between the host (CPU) and the device (GPU). The CPU is therefore responsible for copying necessary data to the GPU for processing. This work-flow is illustrated in \autoref{cudaprocess}
 
 \insfig{./images/cudaprocess.png}{0.5\textwidth}{CUDA process model (from Wikipedia article, author: Tosaka)}{cudaprocess}
 
-CUDA exposes more than just one memory model to the programmer, each with a different purpose and performance. \autoref{cudamem} shows the different types of memory. In \autoref{cudamemtable} the different memory types are listed.
+CUDA exposes more than just one memory model to the programmer, each with a different purpose and performance. \autoref{cudamem} shows the different types of memory. The different memory types are listed in \autoref{cudamemtable}.
 
 \begin{table}[htb]
 	\centering
